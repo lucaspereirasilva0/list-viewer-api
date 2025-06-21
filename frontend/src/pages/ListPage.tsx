@@ -1,6 +1,7 @@
 import { useItems } from "../queries/useItems";
 import { useDeleteItem, useToggleItem } from "../queries/useItemMutations";
 import { Item } from "../api/item";
+import ErrorBanner from "../components/ErrorBanner";
 
 export function ListPage() {
   const { data: items, isLoading, error } = useItems();
@@ -16,11 +17,7 @@ export function ListPage() {
   }
 
   if (error) {
-    return (
-      <div className="text-center text-lg text-red-500">
-        Erro ao carregar itens: {error.message}
-      </div>
-    );
+    return <ErrorBanner msg="Falha ao carregar itens" />;
   }
 
   if (!items || items.length === 0) {
@@ -41,7 +38,7 @@ export function ListPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-400">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-100">
         Sua Lista de Compras
       </h1>
       <ul className="space-y-3">

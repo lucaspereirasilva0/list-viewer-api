@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createItem, deleteItem, toggleItem } from "../api/item";
+import toast from "react-hot-toast";
 
 export function useCreateItem() {
   const qc = useQueryClient();
@@ -7,6 +8,9 @@ export function useCreateItem() {
     mutationFn: createItem,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["items"] });
+    },
+    onError: () => {
+      toast.error("Não foi possível adicionar o item");
     },
   });
 }
@@ -18,6 +22,9 @@ export function useDeleteItem() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["items"] });
     },
+    onError: () => {
+      toast.error("Erro ao remover item");
+    },
   });
 }
 
@@ -27,6 +34,9 @@ export function useToggleItem() {
     mutationFn: toggleItem,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["items"] });
+    },
+    onError: () => {
+      toast.error("Erro ao atualizar item");
     },
   });
 }
