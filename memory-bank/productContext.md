@@ -12,7 +12,7 @@ This project aims to provide a modern and intuitive web interface for users to m
 - Users should be able to view all their items on a single screen.
 - An easy-to-use input field and button for adding new items should be prominent.
 - Each item should have a clear visual indicator of its status (active/inactive, e.g., a checkbox).
-- Users should be able to quickly change an item's status and delete items.
+- Users should be able to quickly change an item's status, edit its name, and delete items.
 - The application should be fast and responsive, even on slower network connections.
 
 ## User Experience Goals

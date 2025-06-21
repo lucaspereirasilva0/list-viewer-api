@@ -9,7 +9,7 @@
 - **PWA:** `vite-plugin-pwa`
 - **Toast Notifications:** react-hot-toast
 - **HTTP Client:** Native `fetch` API
-- **Routing:** (Currently no explicit routing library, single page app)
+- **Routing:** Utiliza `react-router-dom` para gerenciamento da rota raiz (`/`). A funcionalidade de criação e edição de itens foi integrada diretamente na `ListPage`, eliminando a necessidade de páginas separadas para criação e edição.
 - **Linting:** ESLint
 - **Formatting:** Prettier
 

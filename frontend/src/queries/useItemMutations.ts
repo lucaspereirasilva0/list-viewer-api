@@ -1,5 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createItem, deleteItem, toggleItem, Item } from "../api/item";
+import {
+  createItem,
+  deleteItem,
+  toggleItem,
+  Item,
+  updateItem,
+} from "../api/item";
 import toast from "react-hot-toast";
 
 export function useCreateItem() {
@@ -9,12 +15,14 @@ export function useCreateItem() {
     onMutate: async (newItem) => {
       await qc.cancelQueries({ queryKey: ["items"] });
       const previousItems = qc.getQueryData<Item[]>(["items"]);
+      const tempId = `optimistic-${Date.now()}`;
+      const optimisticItem = { ...newItem, id: tempId, active: true };
+
       qc.setQueryData<Item[]>(["items"], (old) =>
-        old
-          ? [...old, { ...newItem, id: String(Date.now()), active: true }]
-          : [],
+        old ? [...old, optimisticItem] : [optimisticItem],
       );
-      return { previousItems };
+
+      return { previousItems, optimisticItem };
     },
     onError: (err, newTodo, context) => {
       toast.error("Não foi possível adicionar o item");
@@ -22,8 +30,15 @@ export function useCreateItem() {
         qc.setQueryData<Item[]>(["items"], context.previousItems);
       }
     },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: ["items"] });
+    onSuccess: (data, variables, context) => {
+      qc.setQueryData<Item[]>(["items"], (old) =>
+        old
+          ? old.map((item) =>
+              item.id === context?.optimisticItem.id ? data : item,
+            )
+          : [data],
+      );
+      toast.success("Item adicionado com sucesso!");
     },
   });
 }
@@ -71,6 +86,37 @@ export function useToggleItem() {
       return { previousItems };
     },
     onError: (err, itemToToggle, context) => {
+      toast.error("Erro ao atualizar item");
+      if (context?.previousItems) {
+        qc.setQueryData<Item[]>(["items"], context.previousItems);
+      }
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ["items"] });
+    },
+  });
+}
+
+export function useUpdateItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: updateItem,
+    onMutate: async (updatedItem) => {
+      await qc.cancelQueries({ queryKey: ["items"] });
+      const previousItems = qc.getQueryData<Item[]>(["items"]);
+
+      qc.setQueryData<Item[]>(["items"], (old) =>
+        old
+          ? old.map((item) =>
+              item.id === updatedItem.id
+                ? { ...item, name: updatedItem.name }
+                : item,
+            )
+          : [],
+      );
+      return { previousItems };
+    },
+    onError: (err, updatedItem, context) => {
       toast.error("Erro ao atualizar item");
       if (context?.previousItems) {
         qc.setQueryData<Item[]>(["items"], context.previousItems);

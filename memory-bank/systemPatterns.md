@@ -23,12 +23,11 @@ flowchart LR
 
 ## Component Relationships (Frontend)
 - **`App.tsx`:** Root component, sets up `QueryClientProvider`.
-- **`CreateItemPage.tsx`:** Componente para adicionar novos itens (anteriormente `ItemsPage.tsx`).
-- **`ListPage.tsx`:** Componente para exibir e gerenciar a lista de itens (incluindo toggle e delete).
+- **`ListPage.tsx`:** Componente para exibir, gerenciar, adicionar e editar novos itens (incluindo toggle, delete, create e edit). O título principal "Sua Lista de Compras" foi ajustado para ser sempre visível, independentemente do estado de carregamento ou erro dos itens.
 - **`api/item.ts`:** Contém funções puras para interagir com a backend API, com tratamento de erros aprimorado para mensagens detalhadas.
-- **`queries/`:** Houses React Query hooks (`useItems`, `useItemMutations`) que abstraem API calls e gerenciam caching/invalidation com atualizações otimistas para mutações.
+- **`queries/`:** Houses React Query hooks (`useItems`, `useItemMutations`, `useUpdateItem`) que abstraem API calls e gerenciam caching/invalidation com atualizações otimistas para mutações.
 
 ## API Interaction Patterns
 - All API interactions are handled via standard `fetch` API calls, wrapped in utility functions in `api/item.ts`.
-- Mutations (create, update, delete) agora utilizam atualizações otimistas no cache do React Query antes de invalidar queries para garantir data freshness (`qc.invalidateQueries`).
+- Mutação de criação de item (`useCreateItem`) agora utiliza atualização otimista seguida de uma atualização direta do cache no `onSuccess` com o item real retornado pelo servidor, evitando uma refetching completa. As demais mutações (update, delete, toggle) continuam a utilizar atualizações otimistas antes de invalidar queries para garantir data freshness (`qc.invalidateQueries`).
 - Error handling é aprimorado para tentar extrair e propagar mensagens de erro detalhadas da resposta da API. 

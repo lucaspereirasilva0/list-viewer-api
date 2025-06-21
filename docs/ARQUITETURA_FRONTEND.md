@@ -38,8 +38,12 @@ frontend/
    ├─ queries/         # Hooks React Query
    │   ├─ useItems.ts          # GET /items
    │   └─ useItemMutations.ts  # POST / PUT / DELETE
+   ├─ components/
+   │   ├─ ErrorBanner.tsx    # Banner de erro visual
+   │   ├─ ItemSkeleton.tsx   # Skeleton loader para itens
+   │   └─ ListItem.tsx       # Componente para renderizar um único item da lista
    └─ pages/
-       └─ ItemsPage.tsx # Página principal (lista + formulário)
+       └─ ListPage.tsx # Página principal (lista + formulário)
 ```
 
 ---
@@ -48,8 +52,8 @@ frontend/
 
 1. **`index.html`** contém um `<div id="root">` vazio e importa o bundle `src/main.tsx`.
 2. **`main.tsx`** cria um `QueryClient` (cache do React Query) e renderiza `<App>` dentro de `<QueryClientProvider>`.
-3. **`App.tsx`** atualmente é um componente fino que apenas delega para `<ItemsPage />`.
-4. **`ItemsPage.tsx`**:
+3. **`App.tsx`** atualmente é um componente fino que apenas delega para `<ListPage />`.
+4. **`ListPage.tsx`**:
    - Busca a lista de itens via **`useItems`**.
    - Possui `useCreateItem`, `useDeleteItem`, `useToggleItem` para mutações.
    - Renderiza o formulário de criação e a lista.
@@ -83,17 +87,18 @@ ReactDOM.createRoot(document.getElementById('root')!)
 Camada fininha que centraliza roteamento ou *layout* global (no futuro). Hoje apenas:
 ```tsx
 function App() {
-  return <ItemsPage />
+  return <ListPage />
 }
 ```
 
-### 3. `src/pages/ItemsPage.tsx`
+### 3. `src/pages/ListPage.tsx`
 Componente de página que incorpora UI + lógica de domínio:
 - **Leitura**: `useItems` devolve `data`, `isLoading` etc.
 - **Criação**: `useCreateItem` cria um item e depois invalida a query `items` para recarregar.
 - **Toggle**: `useToggleItem` muda o estado `active`.
 - **Exclusão**: `useDeleteItem` remove item.
 - Usa `useState` para controlar o texto do input.
+- Delega a renderização de cada item individual para o componente `<ListItem />`.
 
 ### 4. API – `src/api/item.ts`
 Camada de acesso remoto isolada de UI:
