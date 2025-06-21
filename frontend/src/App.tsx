@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import ItemsPage from "./pages/ItemsPage";
+import CreateItemPage from "./pages/CreateItemPage";
 import { ListPage } from "./pages/ListPage";
 
 function Navbar() {
@@ -26,7 +26,7 @@ function App() {
     <BrowserRouter>
       <Navbar />
       <Routes>
-        <Route path="/" element={<ItemsPage />} />
+        <Route path="/" element={<CreateItemPage />} />
         <Route path="/list" element={<ListPage />} />
       </Routes>
     </BrowserRouter>

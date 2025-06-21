@@ -14,6 +14,9 @@ module.exports = {
     sourceType: 'module',
     project: ['./tsconfig.eslint.json'],
     tsconfigRootDir: __dirname,
+    ecmaFeatures: {
+      jsx: true,
+    },
   },
   plugins: ['react-refresh'],
   rules: {

@@ -38,7 +38,7 @@ export function ListPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-100">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-900">
         Sua Lista de Compras
       </h1>
       <ul className="space-y-3">
@@ -57,6 +57,7 @@ export function ListPage() {
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => handleToggle(item)}
+                aria-pressed={item.active}
                 className={`px-4 py-2 rounded-md text-white font-semibold transition-colors duration-200 ${
                   item.active
                     ? "bg-green-600 hover:bg-green-700"

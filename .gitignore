@@ -1,3 +1,54 @@
-.cursor/rules
-memory-bank/
+# ---- Node / JavaScript / TypeScript ----
+node_modules/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Vite / React build output
+/dist/
+/build/
+
+# Test coverage
+/coverage/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# macOS
 .DS_Store
+
+# VSCode settings (opc.)
+.vscode/
+.cursor/rules
+
+# ---- Go (caso backend esteja no mesmo repo) ----
+# Executáveis e artefatos de build
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+/bin/
+/coverage.out
+
+# ---- Misc ----
+# Logs de sistema
+*.pid
+
+# Arquivos temporários
+.tmp/
+.swp
+
+# ---- PWA assets gerados automatically ----
+/workbox-*.js
+/sw.js
+/manifest-*.webmanifest
+
+# ---- IDEs ----
+.idea/
+*.iml
