@@ -52,3 +52,6 @@ pnpm-debug.log*
 # ---- IDEs ----
 .idea/
 *.iml
+
+# Frontend dist directory
+/frontend/dist/
