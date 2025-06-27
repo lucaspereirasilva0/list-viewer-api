@@ -39,6 +39,7 @@ export function useCreateItem() {
           : [data],
       );
       toast.success("Item adicionado com sucesso!");
+      qc.invalidateQueries({ queryKey: ["items"] });
     },
   });
 }
