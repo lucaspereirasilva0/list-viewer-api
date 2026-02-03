@@ -1,10 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FaCheck, FaPlus, FaTimes } from "react-icons/fa";
 import { Item } from "../api/item";
 import ErrorBanner from "../components/ErrorBanner";
 import { ItemSkeleton } from "../components/ItemSkeleton";
 import { ListItem } from "../components/ListItem";
-import { useCreateItem, useDeleteItem, useToggleItem, useUpdateItem } from "../queries/useItemMutations";
+import {
+  useCreateItem,
+  useDeleteItem,
+  useToggleItem,
+  useUpdateItem,
+} from "../queries/useItemMutations";
 import { useItems } from "../queries/useItems";
 
 export function ListPage() {
@@ -47,7 +52,7 @@ export function ListPage() {
     }
   }, [isAddingNewItem]);
 
-  const handleCreateSubmit = () => {
+  const handleCreateSubmit = useCallback(() => {
     const name = contentEditableNewItemRef.current?.innerText.trim() || "";
     if (!name) return;
     createItem.mutate(
@@ -59,18 +64,18 @@ export function ListPage() {
         },
       },
     );
-  };
+  }, [createItem]);
 
-  const handleCancelNewItem = () => {
+  const handleCancelNewItem = useCallback(() => {
     setIsAddingNewItem(false);
     setNewItemName("");
-  };
+  }, []);
 
-  const handleEdit = (item: Item) => {
+  const handleEdit = useCallback((item: Item) => {
     setEditingItemId(item.id);
-  };
+  }, []);
 
-  const handleSaveEdit = (item: Item) => {
+  const handleSaveEdit = useCallback((item: Item) => {
     if (!item.name.trim()) return;
     updateItem.mutate(
       { ...item, name: item.name.trim() },
@@ -80,32 +85,35 @@ export function ListPage() {
         },
       },
     );
-  };
+  }, [updateItem]);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setEditingItemId(null);
-  };
+  }, []);
 
-  const handleToggle = (item: Item) => {
+  const handleToggle = useCallback((item: Item) => {
     toggleItem.mutate({ ...item, active: !item.active });
-  };
+  }, [toggleItem]);
 
-  const handleDelete = (id: string) => {
+  const handleDelete = useCallback((id: string) => {
     deleteItem.mutate(id);
-  };
+  }, [deleteItem]);
 
-  const sortedItems = items?.sort((a, b) => {
-    // Primary sort by active status (true first)
-    const activeComparison = (b.active ? 1 : 0) - (a.active ? 1 : 0);
-    if (activeComparison !== 0) {
-      return activeComparison;
-    }
-    // Secondary sort by updatedAt (descending)
-    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-  });
+  const sortedItems = useMemo(() => {
+    if (!items) return undefined;
+    return [...items].sort((a, b) => {
+      // Primary sort by active status (true first)
+      const activeComparison = (b.active ? 1 : 0) - (a.active ? 1 : 0);
+      if (activeComparison !== 0) {
+        return activeComparison;
+      }
+      // Secondary sort by updatedAt (descending)
+      return Date.parse(b.updatedAt) - Date.parse(a.updatedAt);
+    });
+  }, [items]);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 max-w-2xl">
       <div className="flex items-center justify-center mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mr-2">
           Sua Lista de Compras
@@ -184,7 +192,7 @@ export function ListPage() {
       {!isLoading && !error && (
         <>
           {(!sortedItems || sortedItems.length === 0) && (
-            <div className="flex flex-col items-center justify-center h-screen px-4">
+            <div className="flex flex-col items-center justify-center min-h-[40vh] sm:min-h-[50vh] lg:min-h-[60vh] px-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"

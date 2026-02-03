@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createItem,
   deleteItem,
-  toggleItem,
   Item,
   updateItem,
 } from "../api/item";
@@ -71,7 +70,7 @@ export function useDeleteItem() {
 export function useToggleItem() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: toggleItem,
+    mutationFn: updateItem,
     onMutate: async (itemToToggle) => {
       await qc.cancelQueries({ queryKey: ["items"] });
       const previousItems = qc.getQueryData<Item[]>(["items"]);
