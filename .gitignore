@@ -24,6 +24,7 @@ pnpm-debug.log*
 # VSCode settings (opc.)
 .vscode/
 .cursor/rules
+.claude/
 
 # ---- Go (caso backend esteja no mesmo repo) ----
 # Executáveis e artefatos de build

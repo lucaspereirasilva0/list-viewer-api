@@ -1,7 +1,9 @@
-export interface Item {
+interface Item {
   id: string;
   name: string;
   active: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? "/api";
