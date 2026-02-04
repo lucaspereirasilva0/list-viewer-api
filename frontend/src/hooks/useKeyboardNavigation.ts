@@ -8,14 +8,14 @@ interface KeyboardNavigationOptions {
 }
 
 /**
- * Hook customizado para gerenciar navegação por teclado globalmente.
+ * Custom hook to manage keyboard navigation globally.
  *
- * @param options - Objeto de configuração com callbacks para cada tecla
- * @param options.onEnter - Callback executado quando Enter é pressionado
- * @param options.onEscape - Callback executado quando Escape é pressionado
- * @param options.onTab - Callback executado quando Tab é pressionado
- * @param options.isEnabled - Se false, desativa a navegação (default: true)
- * @param dependencies - Array de dependências adicionais para re-executar o effect
+ * @param options - Configuration object with callbacks for each key
+ * @param options.onEnter - Callback executed when Enter is pressed
+ * @param options.onEscape - Callback executed when Escape is pressed
+ * @param options.onTab - Callback executed when Tab is pressed
+ * @param options.isEnabled - If false, disables navigation (default: true)
+ * @param dependencies - Array of additional dependencies to re-run the effect
  *
  * @example
  * ```ts
@@ -26,9 +26,9 @@ interface KeyboardNavigationOptions {
  * }, [isModalOpen]);
  * ```
  *
- * @nota Este hook usa window.addEventListener globalmente. Se múltiplos
- * componentes usarem este hook simultaneamente, todos responderão aos eventos.
- * Para uso local, considere implementar versão com ref para elemento específico.
+ * @note This hook uses window.addEventListener globally. If multiple
+ * components use this hook simultaneously, all will respond to events.
+ * For local usage, consider implementing a version with ref for a specific element.
  */
 export function useKeyboardNavigation(
   options: KeyboardNavigationOptions,

@@ -25,6 +25,7 @@ pnpm-debug.log*
 .vscode/
 .cursor/rules
 .claude/
+AGENTS.md
 
 # ---- Go (caso backend esteja no mesmo repo) ----
 # Executáveis e artefatos de build

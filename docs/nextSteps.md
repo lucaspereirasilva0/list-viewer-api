@@ -1,70 +1,70 @@
 # Next Steps: List Manager Frontend
 
-## 1. Testes: Implementar testes unitários e de integração
+## 1. Testing: Implement unit and integration tests
 
-**Objetivo:** Garantir a robustez do código, identificar bugs precocemente e facilitar futuras modificações.
+**Objective:** Ensure code robustness, identify bugs early, and facilitate future modifications.
 
-*   **Testes Unitários:**
-    *   **Onde:** Foco em componentes isolados (componentes de apresentação), custom hooks (como `useItems`, `useItemMutations`), e funções de serviço da API (`frontend/src/api/item.ts`).
-    *   **Como:**
-        *   Para componentes React: Use `@testing-library/react` para renderizar componentes e simular interações do usuário.
-        *   Para hooks e funções de API: Mocke as chamadas de rede. Uma boa prática é usar o [Mock Service Worker (MSW)](https://mswjs.io/) para interceptar requisições HTTP em nível de rede, tornando os testes mais próximos do ambiente real.
-        *   Utilize o padrão de **testes dirigidos por tabela** (`table-driven tests`) para testar diferentes cenários e entradas de funções de forma eficiente.
-        *   Garanta que todas as funções exportadas, especialmente aquelas com lógica de negócios ou interação com a API, tenham cobertura de testes.
+*   **Unit Tests:**
+    *   **Where:** Focus on isolated components (presentation components), custom hooks (like `useItems`, `useItemMutations`), and API service functions (`frontend/src/api/item.ts`).
+    *   **How:**
+        *   For React components: Use `@testing-library/react` to render components and simulate user interactions.
+        *   For hooks and API functions: Mock network calls. A good practice is to use [Mock Service Worker (MSW)](https://mswjs.io/) to intercept HTTP requests at the network level, making tests closer to the real environment.
+        *   Use the **table-driven tests** pattern to test different scenarios and function inputs efficiently.
+        *   Ensure all exported functions, especially those with business logic or API interaction, have test coverage.
 
-*   **Testes de Integração:**
-    *   **Onde:** Foco na interação entre componentes e os hooks do React Query, garantindo que o fluxo de dados da UI para a API e vice-versa funcione corretamente.
-    *   **Como:**
-        *   Ainda use MSW para mockar as respostas da API, mas teste o comportamento completo de uma página (ex: `ItemsPage.tsx`) ao adicionar um item, alternar seu status ou deletá-lo.
-        *   Verifique se o React Query está invalidando e refetching dados corretamente após mutações.
+*   **Integration Tests:**
+    *   **Where:** Focus on the interaction between components and React Query hooks, ensuring data flow from UI to API and vice versa works correctly.
+    *   **How:**
+        *   Still use MSW to mock API responses, but test the complete behavior of a page (e.g., `ItemsPage.tsx`) when adding an item, toggling its status, or deleting it.
+        *   Verify that React Query is invalidating and refetching data correctly after mutations.
 
-## 2. Tratamento de Erros: Melhorar as mensagens de erro e feedback ao usuário
+## 2. Error Handling: Improve error messages and user feedback
 
-**Objetivo:** Proporcionar uma experiência mais amigável e informativa em caso de falhas.
+**Objective:** Provide a more friendly and informative experience in case of failures.
 
-*   **Feedback Visual:**
-    *   Implemente mensagens de erro visíveis para o usuário. Podem ser `toasts` (notificações temporárias), banners na parte superior da tela ou mensagens de erro inline (`<p>` de erro) ao lado dos campos de formulário.
-    *   Quando ocorrer um erro de API, capture-o com o `onError` do React Query e exiba uma mensagem relevante (ex: "Falha ao carregar itens", "Não foi possível adicionar o item").
+*   **Visual Feedback:**
+    *   Implement visible error messages for the user. These can be `toasts` (temporary notifications), banners at the top of the screen, or inline error messages (`<p>` error) next to form fields.
+    *   When an API error occurs, capture it with React Query's `onError` and display a relevant message (e.g., "Failed to load items", "Unable to add item").
 
-*   **Observabilidade (Frontend):**
-    *   Considere integrar uma ferramenta de monitoramento de erros de frontend, como [Sentry](https://sentry.io/welcome/) ou configurar o [OpenTelemetry Web](https://opentelemetry.io/docs/instrumentation/js/getting-started/browser/) para rastreamento de erros e métricas de performance.
-    *   Capture e logue erros de rede, erros de API e erros de tempo de execução do JavaScript com detalhes suficientes para depuração.
+*   **Observability (Frontend):**
+    *   Consider integrating a frontend error monitoring tool like [Sentry](https://sentry.io/welcome/) or configuring [OpenTelemetry Web](https://opentelemetry.io/docs/instrumentation/js/getting-started/browser/) for error tracking and performance metrics.
+    *   Capture and log network errors, API errors, and JavaScript runtime errors with sufficient details for debugging.
 
-## 3. Refinamentos de UI/UX: Melhorar estados de carregamento, estados vazios e responsividade
+## 3. UI/UX Refinements: Improve loading states, empty states, and responsiveness
 
-**Objetivo:** Tornar a aplicação mais fluida, intuitiva e agradável de usar.
+**Objective:** Make the application more fluid, intuitive, and pleasant to use.
 
-*   **Estados de Carregamento (`Loading States`):**
-    *   Ao buscar dados da API, exiba indicadores de carregamento. Pode ser um `spinner` genérico, ou melhor, `skeleton loaders` que simulam a estrutura do conteúdo que está sendo carregado, dando uma sensação de velocidade.
-    *   Utilize as propriedades `isLoading` e `isFetching` dos hooks do React Query.
+*   **Loading States:**
+    *   When fetching data from the API, display loading indicators. This can be a generic `spinner`, or better, `skeleton loaders` that simulate the structure of the content being loaded, giving a sense of speed.
+    *   Use React Query hook properties `isLoading` and `isFetching`.
 
-*   **Estados Vazios (`Empty States`):</b>
-    *   Quando não houver itens na lista, exiba uma mensagem clara informando isso (ex: "Nenhum item encontrado. Adicione o primeiro item!") e talvez um botão ou ícone convidando o usuário a adicionar um novo item.
+*   **Empty States:**
+    *   When there are no items in the list, display a clear message informing this (e.g., "No items found. Add the first item!") and perhaps a button or icon inviting the user to add a new item.
 
-*   **Responsividade:**
-    *   Revise o layout da aplicação em diferentes tamanhos de tela (especialmente mobile) utilizando as classes utilitárias do Tailwind CSS.
-    *   Teste a aplicação em emuladores de dispositivos móveis no navegador e, se possível, em dispositivos reais para garantir uma experiência consistente.
-    *   Garanta que elementos interativos (botões, campos de input) sejam facilmente clicáveis/tocáveis em telas pequenas.
+*   **Responsiveness:**
+    *   Review the application layout on different screen sizes (especially mobile) using Tailwind CSS utility classes.
+    *   Test the application in mobile emulators in the browser and, if possible, on real devices to ensure a consistent experience.
+    *   Ensure interactive elements (buttons, input fields) are easily clickable/touchable on small screens.
 
-## 4. Filtragem/Busca: Adicionar filtragem básica no lado do cliente
+## 4. Filtering/Search: Add basic client-side filtering
 
-**Objetivo:** Permitir que os usuários gerenciem listas maiores com mais facilidade.
+**Objective:** Allow users to manage larger lists more easily.
 
-*   **Filtragem por Status:**
-    *   Adicione botões ou um dropdown para filtrar itens por status (ex: "Todos", "Ativos", "Inativos").
-    *   A lógica de filtragem será no frontend, operando sobre a lista de itens já carregada.
+*   **Filter by Status:**
+    *   Add buttons or a dropdown to filter items by status (e.g., "All", "Active", "Inactive").
+    *   Filtering logic will be on the frontend, operating on the already loaded list of items.
 
-*   **Barra de Busca:**
-    *   Implemente um campo de input onde o usuário pode digitar e filtrar os itens pelo nome ou descrição.
-    *   Considere implementar um `debounce` para o campo de busca, para evitar que a filtragem seja executada a cada caractere digitado, melhorando a performance.
+*   **Search Bar:**
+    *   Implement an input field where the user can type and filter items by name or description.
+    *   Consider implementing a `debounce` for the search field to avoid filtering being executed on each typed character, improving performance.
 
-## 5. Sincronização Offline: Implementar capacidades offline mais robustas
+## 5. Offline Sync: Implement more robust offline capabilities
 
-**Objetivo:** Aprimorar a experiência PWA, permitindo operações mesmo sem conexão imediata.
+**Objective:** Improve the PWA experience, allowing operations even without immediate connection.
 
-*   **Atualizações Otimistas (`Optimistic Updates`):**
-    *   Para operações como adicionar, alternar status ou deletar um item, atualize a UI imediatamente como se a operação tivesse sido bem-sucedida, antes mesmo de receber a resposta do backend.
-    *   Se a chamada de API falhar, reverta a alteração na UI e exiba uma mensagem de erro. O React Query tem suporte nativo para isso com a opção `onMutate`.
+*   **Optimistic Updates:**
+    *   For operations like adding, toggling status, or deleting an item, update the UI immediately as if the operation was successful, even before receiving the backend response.
+    *   If the API call fails, revert the change in the UI and display an error message. React Query has native support for this with the `onMutate` option.
 
-*   **Background Sync (PWA - mais avançado):**
-    *   Para cenários onde o usuário tenta uma operação sem conexão e você quer que ela seja retentada automaticamente quando a conexão voltar, explore a [API de Background Sync](https://developer.mozilla.org/en-US/docs/Web/API/Background_Sync_API) ou utilize recursos do [Workbox](https://developer.chrome.com/docs/workbox/) (parte do `vite-plugin-pwa`) para enfileirar requisições falhas e reexecutá-las offline. 
+*   **Background Sync (PWA - more advanced):**
+    *   For scenarios where the user attempts an operation without connection and you want it to be automatically retried when the connection returns, explore the [Background Sync API](https://developer.mozilla.org/en-US/docs/Web/API/Background_Sync_API) or use [Workbox](https://developer.chrome.com/docs/workbox/) resources (part of `vite-plugin-pwa`) to queue failed requests and re-execute them offline.

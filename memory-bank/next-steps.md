@@ -1,23 +1,23 @@
-# Próximos Passos - Lista de Melhorias
+# Next Steps - Improvement List
 
-Documentação das melhorias identificadas na análise do projeto, organizadas por prioridade.
+Documentation of improvements identified in the project analysis, organized by priority.
 
-**Última atualização:** 2026-02-03
-**Status:** Todas as tarefas de alta e média prioridade foram concluídas.
+**Last updated:** 2026-02-03
+**Status:** All high and medium priority tasks have been completed.
 
 ---
 
-## ✅ Alta Prioridade (CONCLUÍDO)
+## ✅ High Priority (COMPLETED)
 
-### ~~1. Otimizar `sortedItems` com `useMemo`~~ ✅
-**Arquivo:** `frontend/src/pages/ListPage.tsx`
+### ~~1. Optimize `sortedItems` with `useMemo`~~ ✅
+**File:** `frontend/src/pages/ListPage.tsx`
 
-**Status:** CONCLUÍDO
-**Problema:** O sorting é recalculado em toda renderização.
+**Status:** COMPLETED
+**Problem:** Sorting is recalculated on every render.
 
-**Solução implementada:**
+**Implemented solution:**
 ```typescript
-// Linha 102-113 do ListPage.tsx
+// Lines 102-113 of ListPage.tsx
 const sortedItems = useMemo(() => {
   if (!items) return undefined;
   return [...items].sort((a, b) => {
@@ -30,45 +30,45 @@ const sortedItems = useMemo(() => {
 
 ---
 
-### ~~2. Adicionar largura máxima no container principal~~ ✅
-**Arquivo:** `frontend/src/pages/ListPage.tsx`
+### ~~2. Add max-width to main container~~ ✅
+**File:** `frontend/src/pages/ListPage.tsx`
 
-**Status:** CONCLUÍDO
-**Problema:** Em telas grandes, a lista fica muito larga, prejudicando a UX.
+**Status:** COMPLETED
+**Problem:** On large screens, the list becomes too wide, harming UX.
 
-**Solução implementada:**
+**Implemented solution:**
 ```typescript
-// Linha 116 do ListPage.tsx
+// Line 116 of ListPage.tsx
 <div className="container mx-auto p-4 max-w-2xl">
-  // conteúdo
+  // content
 </div>
 ```
 
 ---
 
-### ~~3. Remover `h-screen` do empty state~~ ✅
-**Arquivo:** `frontend/src/pages/ListPage.tsx:195`
+### ~~3. Remove `h-screen` from empty state~~ ✅
+**File:** `frontend/src/pages/ListPage.tsx:195`
 
-**Status:** CONCLUÍDO
-**Problema:** Cria scroll desnecessário quando há itens na lista.
+**Status:** COMPLETED
+**Problem:** Creates unnecessary scroll when there are items in the list.
 
-**Solução implementada:**
+**Implemented solution:**
 ```typescript
-// Linha 195 do ListPage.tsx - substituído h-screen por min-h responsivo
+// Line 195 of ListPage.tsx - replaced h-screen with responsive min-h
 <div className="flex flex-col items-center justify-center min-h-[40vh] sm:min-h-[50vh] lg:min-h-[60vh] px-4">
 ```
 
 ---
 
-### ~~4. Usar `useCallback` nos handlers de eventos~~ ✅
-**Arquivo:** `frontend/src/pages/ListPage.tsx`
+### ~~4. Use `useCallback` in event handlers~~ ✅
+**File:** `frontend/src/pages/ListPage.tsx`
 
-**Status:** CONCLUÍDO
-**Problema:** Handlers são recriados em toda render, podendo causar re-renders desnecessários em componentes filhos.
+**Status:** COMPLETED
+**Problem:** Handlers are recreated on every render, potentially causing unnecessary re-renders in child components.
 
-**Solução implementada:**
+**Implemented solution:**
 ```typescript
-// Linhas 55-100 do ListPage.tsx
+// Lines 55-100 of ListPage.tsx
 const handleCreateSubmit = useCallback(() => {
   const name = contentEditableNewItemRef.current?.innerText.trim() || "";
   if (!name) return;
@@ -114,27 +114,27 @@ const handleDelete = useCallback((id: string) => {
 
 ---
 
-## ✅ Média Prioridade (CONCLUÍDO)
+## ✅ Medium Priority (COMPLETED)
 
-### ~~5. Unificar `toggleItem` e `updateItem` na API~~ ✅
-**Arquivo:** `frontend/src/api/item.ts`
+### ~~5. Unify `toggleItem` and `updateItem` in the API~~ ✅
+**File:** `frontend/src/api/item.ts`
 
-**Status:** CONCLUÍDO
-**Problema:** As funções `toggleItem` e `updateItem` eram idênticas.
+**Status:** COMPLETED
+**Problem:** The functions `toggleItem` and `updateItem` were identical.
 
-**Solução implementada:** Mantida apenas `updateItem` (linha 53-68) e utilizada para ambos os casos através dos hooks do React Query.
+**Implemented solution:** Kept only `updateItem` (line 53-68) and used it for both cases through React Query hooks.
 
 ---
 
-### ~~6. Extrair header ngrok para configuração centralizada~~ ✅
-**Arquivo:** `frontend/src/api/client.ts`
+### ~~6. Extract ngrok header to centralized configuration~~ ✅
+**File:** `frontend/src/api/client.ts`
 
-**Status:** CONCLUÍDO
-**Problema:** Header `ngrok-skip-browser-warning` hardcoded em múltiplas chamadas.
+**Status:** COMPLETED
+**Problem:** Header `ngrok-skip-browser-warning` hardcoded in multiple calls.
 
-**Solução implementada:**
+**Implemented solution:**
 ```typescript
-// Arquivo criado: frontend/src/api/client.ts
+// File created: frontend/src/api/client.ts
 const API_CLIENT = {
   headers: {
     "ngrok-skip-browser-warning": "true",
@@ -154,15 +154,15 @@ export async function apiRequest(
 
 ---
 
-### ~~7. Adicionar `React.memo` no `ListItem`~~ ✅
-**Arquivo:** `frontend/src/components/ListItem.tsx`
+### ~~7. Add `React.memo` to `ListItem`~~ ✅
+**File:** `frontend/src/components/ListItem.tsx`
 
-**Status:** CONCLUÍDO
-**Problema:** Componente re-renderiza quando outros itens mudam.
+**Status:** COMPLETED
+**Problem:** Component re-renders when other items change.
 
-**Solução implementada:**
+**Implemented solution:**
 ```typescript
-// Linha 22 do ListItem.tsx
+// Line 22 of ListItem.tsx
 export const ListItem = React.memo(function ListItem({
   item,
   editingItemId,
@@ -172,71 +172,71 @@ export const ListItem = React.memo(function ListItem({
   onSaveEdit,
   onCancelEdit,
 }: ListItemProps) {
-  // implementação
+  // implementation
 });
 ```
 
 ---
 
-### ~~8. Melhorar navegação por teclado~~ ✅
-**Arquivos:** `frontend/src/hooks/useKeyboardNavigation.ts`, `frontend/src/components/ListItem.tsx`
+### ~~8. Improve keyboard navigation~~ ✅
+**Files:** `frontend/src/hooks/useKeyboardNavigation.ts`, `frontend/src/components/ListItem.tsx`
 
-**Status:** CONCLUÍDO
-**Problema:** Falta suporte adequado para navegação por teclado.
+**Status:** COMPLETED
+**Problem:** Lacks adequate keyboard navigation support.
 
-**Solução implementada:**
-- Criado hook `useKeyboardNavigation` (linha 33-62)
-- Suporte a teclas Enter, Escape e Tab em todos os campos editáveis
-- Navegação consistente em todo o formulário
-
----
-
-## ✅ Baixa Prioridade (CONCLUÍDO)
-
-### ~~9. Análise de contraste de cores~~ ✅
-**Arquivo:** `docs/accessibility/contrast-analysis.md`
-
-**Status:** CONCLUÍDO
-**Problema:** Possíveis problemas de contraste, especialmente em dark mode.
-
-**Solução implementada:** Documento criado com análise completa de contraste. Todas as cores atendem aos padrões WCAG AA.
+**Implemented solution:**
+- Created `useKeyboardNavigation` hook (line 33-62)
+- Support for Enter, Escape and Tab keys in all editable fields
+- Consistent navigation throughout the form
 
 ---
 
-### ~~10. Animações mais suaves nas transições~~ ✅
-**Status:** PARCIALMENTE CONCLUÍDO
-**Solução implementada:** Transições CSS adicionadas em todos os botões e elementos interativos (transition-all duration-200 ease-in-out)
+## ✅ Low Priority (COMPLETED)
+
+### ~~9. Color contrast analysis~~ ✅
+**File:** `docs/accessibility/contrast-analysis.md`
+
+**Status:** COMPLETED
+**Problem:** Possible contrast issues, especially in dark mode.
+
+**Implemented solution:** Document created with complete contrast analysis. All colors meet WCAG AA standards.
 
 ---
 
-### ~~11. Testes de unidade e integração~~ ✅
-**Arquivos:** `frontend/src/components/__tests__/ListItem.test.tsx`, `frontend/src/api/__tests__/client.test.ts`
-
-**Status:** CONCLUÍDO
-**Solução implementada:** Testes configurados com Vitest e React Testing Library:
-- `ListItem.test.tsx`: Testes de renderização, interação e estados
-- `client.test.ts`: Testes do cliente HTTP e headers
+### ~~10. Smoother transitions~~ ✅
+**Status:** PARTIALLY COMPLETED
+**Implemented solution:** CSS transitions added to all buttons and interactive elements (transition-all duration-200 ease-in-out)
 
 ---
 
-## 📊 Outras Observações
+### ~~11. Unit and integration tests~~ ✅
+**Files:** `frontend/src/components/__tests__/ListItem.test.tsx`, `frontend/src/api/__tests__/client.test.ts`
 
-### Segurança
-- Avaliar necessidade de remover header ngrok em produção
-- Planejar implementação de autenticação
+**Status:** COMPLETED
+**Implemented solution:** Tests configured with Vitest and React Testing Library:
+- `ListItem.test.tsx`: Rendering, interaction and state tests
+- `client.test.ts`: HTTP client and header tests
+
+---
+
+## 📊 Other Observations
+
+### Security
+- Assess need to remove ngrok header in production
+- Plan authentication implementation
 
 ### PWA
-- Implementar Background Sync para melhor experiência offline
-- Avaliar uso de IndexedDB para cache de dados
+- Implement Background Sync for better offline experience
+- Evaluate IndexedDB usage for data cache
 
 ### Performance Monitoring
-- Integrar ferramenta de monitoramento (Sentry, OpenTelemetry)
-- Adicionar analytics de uso
+- Integrate monitoring tool (Sentry, OpenTelemetry)
+- Add usage analytics
 
 ---
 
-## 🔗 Referências
+## 🔗 References
 
-- Análise completa disponível na conversa com Claude
-- Documentação atual em `memory-bank/`
-- ADRs em `docs/adr/`
+- Complete analysis available in the conversation with Claude
+- Current documentation in `memory-bank/`
+- ADRs in `docs/adr/`

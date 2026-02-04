@@ -1,62 +1,62 @@
-# ADR 08: Decisão de Arquitetura - Otimizações de Performance
+# ADR 08: Architecture Decision - Performance Optimizations
 
 ## WHAT IS THIS ADR?
-Este documento registra as decisões arquiteturais tomadas para otimizar a performance do frontend da aplicação de gerenciamento de lista de compras, incluindo melhorias de React rendering, refatoração de API e acessibilidade.
+This document records the architectural decisions made to optimize the performance of the frontend of the shopping list management application, including React rendering improvements, API refactoring, and accessibility enhancements.
 
 ## DETAILS
-- **Context:** O frontend da aplicação de lista de compras apresentava oportunidades de otimização de performance e refatoração de código. Análises identificaram que o sorting de itens era recalculado em toda renderização, handlers de eventos eram recriados desnecessariamente, e não havia memoização adequada de componentes.
+- **Context:** The frontend of the shopping list application presented opportunities for performance optimization and code refactoring. Analyses identified that item sorting was recalculated on every render, event handlers were recreated unnecessarily, and there was no adequate component memoization.
 
-- **Decision:** Implementamos um conjunto abrangente de otimizações focado em:
-  1. Performance do React usando hooks otimizadores
-  2. Refatoração da API para eliminar duplicação
-  3. Melhorias de UX e acessibilidade
-  4. Cobertura de testes automatizados
+- **Decision:** We implemented a comprehensive set of optimizations focused on:
+  1. React performance using optimizer hooks
+  2. API refactoring to eliminate duplication
+  3. UX and accessibility improvements
+  4. Automated test coverage
 
 - **Considered Alternatives:**
-  - **Manter código como estava:** Rejeitado pois causava re-renders desnecessários e performance degradada em listas maiores.
-  - **Usar biblioteca de gerenciamento de estado global (Redux/Zustand):** Considerado mas rejeitado pois o React Query já gerencia o estado de servidor adequadamente.
-  - **Implementar virtualização de lista (react-window):** Considerado para listas muito grandes, mas adiado pois as otimizações implementadas foram suficientes para o caso de uso atual.
+  - **Keep code as it was:** Rejected as it caused unnecessary re-renders and degraded performance on larger lists.
+  - **Use global state management library (Redux/Zustand):** Considered but rejected since React Query already adequately manages server state.
+  - **Implement list virtualization (react-window):** Considered for very large lists, but deferred as the implemented optimizations were sufficient for the current use case.
 
 - **Consequences:**
-    - **Positivas:**
-        - **Melhor Performance:** `useMemo` no sorting evita recalculos desnecessários, `useCallback` estabiliza referências de funções, e `React.memo` previne re-renders do ListItem.
-        - **Código Mais Manutenível:** Centralização da configuração HTTP em `client.ts` elimina duplicação e facilita manutenção.
-        - **Melhor UX:** Largura máxima no container e empty state responsivo melhoram a experiência em telas grandes.
-        - **Maior Acessibilidade:** Hook `useKeyboardNavigation` e análise de contraste de cores garantem melhor suporte a navegação por teclado e leitura.
-        - **Confiança no Código:** Testes automatizados com Vitest e React Testing Library validam o comportamento dos componentes.
-    - **Negativas:**
-        - **Complexidade Levemente Aumentada:** Uso de hooks adicionais (useMemo, useCallback) requer entendimento adequado.
-        - **Mais Arquivos:** Criação de novos arquivos (client.ts, hooks, testes) aumenta a superfície do código.
-        - **Curva de Aprendizado:** Desenvolvedores novos precisam entender as decisões de otimização tomadas.
+    - **Positives:**
+        - **Better Performance:** `useMemo` on sorting avoids unnecessary recalculations, `useCallback` stabilizes function references, and `React.memo` prevents ListItem re-renders.
+        - **More Maintainable Code:** Centralization of HTTP configuration in `client.ts` eliminates duplication and facilitates maintenance.
+        - **Improved UX:** Max-width on container and responsive empty state improve the experience on large screens.
+        - **Greater Accessibility:** `useKeyboardNavigation` hook and color contrast analysis ensure better keyboard navigation support and reading.
+        - **Code Confidence:** Automated tests with Vitest and React Testing Library validate component behavior.
+    - **Negatives:**
+        - **Slightly Increased Complexity:** Use of additional hooks (useMemo, useCallback) requires proper understanding.
+        - **More Files:** Creation of new files (client.ts, hooks, tests) increases code surface.
+        - **Learning Curve:** New developers need to understand the optimization decisions made.
 
-## IMPLEMENTAÇÃO
+## IMPLEMENTATION
 
 ### 1. React Performance Hooks
-- **useMemo:** Memoização do sorting de itens (`ListPage.tsx:102-113`)
-- **useCallback:** Estabilização de handlers de eventos (`ListPage.tsx:55-100`)
-- **React.memo:** Memoização do componente ListItem (`ListItem.tsx:22`)
+- **useMemo:** Memoization of item sorting (`ListPage.tsx:102-113`)
+- **useCallback:** Stabilization of event handlers (`ListPage.tsx:55-100`)
+- **React.memo:** Memoization of ListItem component (`ListItem.tsx:22`)
 
 ### 2. API Refactoring
-- **Unificação de funções:** Removida função duplicada `toggleItem`, mantendo apenas `updateItem` (`item.ts:53-68`)
-- **Centralização HTTP:** Criado `client.ts` para configuração centralizada de headers e requisições
+- **Function unification:** Removed duplicated `toggleItem` function, keeping only `updateItem` (`item.ts:53-68`)
+- **HTTP Centralization:** Created `client.ts` for centralized header and request configuration
 
 ### 3. UX Improvements
-- **Largura máxima:** Container com `max-w-2xl` para melhor legibilidade em telas grandes (`ListPage.tsx:116`)
-- **Empty state responsivo:** Substituído `h-screen` por `min-h-[40vh] sm:min-h-[50vh] lg:min-h-[60vh]` (`ListPage.tsx:195`)
-- **Transições suaves:** Adicionadas classes de transição em elementos interativos
+- **Max-width:** Container with `max-w-2xl` for better readability on large screens (`ListPage.tsx:116`)
+- **Responsive empty state:** Replaced `h-screen` with `min-h-[40vh] sm:min-h-[50vh] lg:min-h-[60vh]` (`ListPage.tsx:195`)
+- **Smooth transitions:** Added transition classes to interactive elements
 
 ### 4. Accessibility
-- **Hook de navegação:** Criado `useKeyboardNavigation.ts` para gerenciar eventos de teclado globalmente
-- **Análise de contraste:** Documento em `docs/accessibility/contrast-analysis.md` valida cores contra WCAG AA
-- **Aria labels:** Botões possuem `aria-label` e `aria-pressed` apropriados
+- **Navigation hook:** Created `useKeyboardNavigation.ts` to globally manage keyboard events
+- **Contrast analysis:** Document in `docs/accessibility/contrast-analysis.md` validates colors against WCAG AA
+- **Aria labels:** Buttons have appropriate `aria-label` and `aria-pressed` attributes
 
 ### 5. Testing
-- **Testes de componente:** `ListItem.test.tsx` valida renderização, estados e interações
-- **Testes de API:** `client.test.ts` valida configuração HTTP e headers
-- **Configuração:** Vitest configurado em `vite.config.ts:40-44`
+- **Component tests:** `ListItem.test.tsx` validates rendering, states, and interactions
+- **API tests:** `client.test.ts` validates HTTP configuration and headers
+- **Configuration:** Vitest configured in `vite.config.ts:40-44`
 
 ## CHANGELOG
-- `2026-02-03` - Version 1.0 - Document initialization. Registro das otimizações de performance implementadas.
+- `2026-02-03` - Version 1.0 - Document initialization. Registration of implemented performance optimizations.
 
 ## FILE AND DIRECTORY CONVENTION
 - **Directory:** `root_project/docs/adr/`

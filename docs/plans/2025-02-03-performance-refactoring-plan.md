@@ -2,49 +2,49 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Implementar melhorias de performance e refatoração no frontend da aplicação de lista de compras, seguindo princípios TDD, DRY e YAGNI.
+**Goal:** Implement performance improvements and refactoring in the frontend of the shopping list application, following TDD, DRY, and YAGNI principles.
 
-**Architecture:** Refatoração incremental focada em otimizações de React (useMemo, useCallback, React.memo), centralização de configuração da API e melhorias de UX. Cada mudança é isolada e testável.
+**Architecture:** Incremental refactoring focused on React optimizations (useMemo, useCallback, React.memo), API configuration centralization, and UX improvements. Each change is isolated and testable.
 
 **Tech Stack:** React 18, TypeScript, Vite, React Query (@tanstack/react-query), Tailwind CSS
 
 ---
 
-## Pré-requisitos
+## Prerequisites
 
-Antes de iniciar, certifique-se de:
+Before starting, ensure you:
 
-1. Ter o ambiente de desenvolvimento configurado
-2. Ter os testes configurados (Vitest + React Testing Library) - ver task de teste unitário
-3. Estar na branch `feature/performance-refactoring` (ou criar nova branch)
+1. Have the development environment configured
+2. Have tests configured (Vitest + React Testing Library) - see unit test task
+3. Be on the `feature/performance-refactoring` branch (or create new branch)
 
 ```bash
-# Criar branch se não existir
+# Create branch if it doesn't exist
 git checkout -b feature/performance-refactoring
 ```
 
 ---
 
-# PARTE 1: ALTA PRIORIDADE
+# PART 1: HIGH PRIORITY
 
-## Task 1: Otimizar `sortedItems` com `useMemo`
+## Task 1: Optimize `sortedItems` with `useMemo`
 
-**Arquivos:**
-- Modificar: `frontend/src/pages/ListPage.tsx:97-105`
+**Files:**
+- Modify: `frontend/src/pages/ListPage.tsx:97-105`
 
-**Problema:** O sorting é recalculado em toda renderização, causando processamento desnecessário.
+**Problem:** The sorting is recalculated on every render, causing unnecessary processing.
 
-**Passo 1: Adicionar import do useMemo**
+**Step 1: Add useMemo import**
 
-Na linha 1, adicionar `useMemo` aos imports existentes:
+On line 1, add `useMemo` to the existing imports:
 
 ```typescript
 import { useEffect, useMemo, useRef, useState } from "react";
 ```
 
-**Passo 2: Envolver sortedItems com useMemo**
+**Step 2: Wrap sortedItems with useMemo**
 
-Substituir as linhas 97-105 por:
+Replace lines 97-105 with:
 
 ```typescript
 const sortedItems = useMemo(() => {
@@ -60,99 +60,99 @@ const sortedItems = useMemo(() => {
 }, [items]);
 ```
 
-**Passo 3: Testar manualmente**
+**Step 3: Test manually**
 
-Execute: `npm run dev`
+Run: `npm run dev`
 
-Expected: Aplicação funciona normalmente, mas sorting não é recalculado em renders desnecessários.
+Expected: Application works normally, but sorting is not recalculated on unnecessary renders.
 
-**Passo 4: Commit**
+**Step 4: Commit**
 
 ```bash
 git add frontend/src/pages/ListPage.tsx
-git commit -m "perf: otimizar sortedItems com useMemo"
+git commit -m "perf: optimize sortedItems with useMemo"
 ```
 
 ---
 
-## Task 2: Adicionar largura máxima no container principal
+## Task 2: Add max-width to main container
 
-**Arquivos:**
-- Modificar: `frontend/src/pages/ListPage.tsx:108`
+**Files:**
+- Modify: `frontend/src/pages/ListPage.tsx:108`
 
-**Problema:** Em telas grandes, a lista fica muito larga, prejudicando a UX.
+**Problem:** On large screens, the list becomes too wide, harming UX.
 
-**Passo 1: Adicionar max-w-2xl ao container**
+**Step 1: Add max-w-2xl to container**
 
-Substituir a linha 108:
+Replace line 108:
 
 ```typescript
 <div className="container mx-auto p-4 max-w-2xl">
 ```
 
-**Passo 2: Testar manualmente**
+**Step 2: Test manually**
 
-Execute: `npm run dev`
+Run: `npm run dev`
 
-Expected: Em telas largas, o conteúdo tem largura máxima de 672px (2xl).
+Expected: On wide screens, the content has a maximum width of 672px (2xl).
 
-**Passo 3: Commit**
+**Step 3: Commit**
 
 ```bash
 git add frontend/src/pages/ListPage.tsx
-git commit -m "ux: adicionar largura máxima no container principal"
+git commit -m "ux: add max-width to main container"
 ```
 
 ---
 
-## Task 3: Remover `h-screen` do empty state
+## Task 3: Remove `h-screen` from empty state
 
-**Arquivos:**
-- Modificar: `frontend/src/pages/ListPage.tsx:187`
+**Files:**
+- Modify: `frontend/src/pages/ListPage.tsx:187`
 
-**Problema:** Cria scroll desnecessário quando há itens na lista.
+**Problem:** Creates unnecessary scroll when there are items in the list.
 
-**Passo 1: Substituir h-screen por min-h-[50vh]**
+**Step 1: Replace h-screen with min-h-[50vh]
 
-Substituir a linha 187:
+Replace line 187:
 
 ```typescript
 <div className="flex flex-col items-center justify-center min-h-[50vh] px-4">
 ```
 
-**Passo 2: Testar manualmente**
+**Step 2: Test manually**
 
-Execute: `npm run dev`
+Run: `npm run dev`
 
-Expected: Empty state tem altura mínima de 50vh, sem scroll excessivo.
+Expected: Empty state has a minimum height of 50vh, without excessive scroll.
 
-**Passo 3: Commit**
+**Step 3: Commit**
 
 ```bash
 git add frontend/src/pages/ListPage.tsx
-git commit -m "ux: remover h-screen do empty state para evitar scroll excessivo"
+git commit -m "ux: remove h-screen from empty state to avoid excessive scroll"
 ```
 
 ---
 
-## Task 4: Usar `useCallback` nos handlers de eventos
+## Task 4: Use `useCallback` in event handlers
 
-**Arquivos:**
-- Modificar: `frontend/src/pages/ListPage.tsx:1,50-95`
+**Files:**
+- Modify: `frontend/src/pages/ListPage.tsx:1,50-95`
 
-**Problema:** Handlers são recriados em toda render, podendo causar re-renders desnecessários em componentes filhos.
+**Problem:** Handlers are recreated on every render, potentially causing unnecessary re-renders in child components.
 
-**Passo 1: Adicionar useCallback aos imports**
+**Step 1: Add useCallback to imports**
 
-Substituir a linha 1:
+Replace line 1:
 
 ```typescript
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 ```
 
-**Passo 2: Envolver handleCreateSubmit com useCallback**
+**Step 2: Wrap handleCreateSubmit with useCallback**
 
-Substituir as linhas 50-62 por:
+Replace lines 50-62 with:
 
 ```typescript
 const handleCreateSubmit = useCallback(() => {
@@ -170,9 +170,9 @@ const handleCreateSubmit = useCallback(() => {
 }, [createItem]);
 ```
 
-**Passo 3: Envolver handleCancelNewItem com useCallback**
+**Step 3: Wrap handleCancelNewItem with useCallback**
 
-Substituir as linhas 64-67 por:
+Replace lines 64-67 with:
 
 ```typescript
 const handleCancelNewItem = useCallback(() => {
@@ -181,9 +181,9 @@ const handleCancelNewItem = useCallback(() => {
 }, []);
 ```
 
-**Passo 4: Envolver handleEdit com useCallback**
+**Step 4: Wrap handleEdit with useCallback**
 
-Substituir as linhas 69-71 por:
+Replace lines 69-71 with:
 
 ```typescript
 const handleEdit = useCallback((item: Item) => {
@@ -191,9 +191,9 @@ const handleEdit = useCallback((item: Item) => {
 }, []);
 ```
 
-**Passo 5: Envolver handleSaveEdit com useCallback**
+**Step 5: Wrap handleSaveEdit with useCallback**
 
-Substituir as linhas 73-83 por:
+Replace lines 73-83 with:
 
 ```typescript
 const handleSaveEdit = useCallback((item: Item) => {
@@ -209,9 +209,9 @@ const handleSaveEdit = useCallback((item: Item) => {
 }, [updateItem]);
 ```
 
-**Passo 6: Envolver handleCancelEdit com useCallback**
+**Step 6: Wrap handleCancelEdit with useCallback**
 
-Substituir as linhas 85-87 por:
+Replace lines 85-87 with:
 
 ```typescript
 const handleCancelEdit = useCallback(() => {
@@ -219,9 +219,9 @@ const handleCancelEdit = useCallback(() => {
 }, []);
 ```
 
-**Passo 7: Envolver handleToggle com useCallback**
+**Step 7: Wrap handleToggle with useCallback**
 
-Substituir as linhas 89-91 por:
+Replace lines 89-91 with:
 
 ```typescript
 const handleToggle = useCallback((item: Item) => {
@@ -229,9 +229,9 @@ const handleToggle = useCallback((item: Item) => {
 }, [toggleItem]);
 ```
 
-**Passo 8: Envolver handleDelete com useCallback**
+**Step 8: Wrap handleDelete with useCallback**
 
-Substituir as linhas 93-95 por:
+Replace lines 93-95 with:
 
 ```typescript
 const handleDelete = useCallback((id: string) => {
@@ -239,38 +239,38 @@ const handleDelete = useCallback((id: string) => {
 }, [deleteItem]);
 ```
 
-**Passo 9: Testar manualmente**
+**Step 9: Test manually**
 
-Execute: `npm run dev`
+Run: `npm run dev`
 
-Expected: Aplicação funciona normalmente, mas handlers não são recriados em cada render.
+Expected: Application works normally, but handlers are not recreated on each render.
 
-**Passo 10: Commit**
+**Step 10: Commit**
 
 ```bash
 git add frontend/src/pages/ListPage.tsx
-git commit -m "perf: envolver handlers com useCallback para evitar recriação"
+git commit -m "perf: wrap handlers with useCallback to avoid recreation"
 ```
 
 ---
 
-# PARTE 2: MÉDIA PRIORIDADE
+# PART 2: MEDIUM PRIORITY
 
-## Task 5: Unificar `toggleItem` e `updateItem` na API
+## Task 5: Unify `toggleItem` and `updateItem` in the API
 
-**Arquivos:**
-- Modificar: `frontend/src/api/item.ts:59-93`
-- Modificar: `frontend/src/queries/useItemMutations.ts:2-8,71-98`
+**Files:**
+- Modify: `frontend/src/api/item.ts:59-93`
+- Modify: `frontend/src/queries/useItemMutations.ts:2-8,71-98`
 
-**Problema:** As funções `toggleItem` e `updateItem` são idênticas.
+**Problem:** The functions `toggleItem` and `updateItem` are identical.
 
-**Passo 1: Remover toggleItem da API**
+**Step 1: Remove toggleItem from API**
 
-No arquivo `frontend/src/api/item.ts`, remover as linhas 59-75 (função toggleItem).
+In file `frontend/src/api/item.ts`, remove lines 59-75 (toggleItem function).
 
-**Passo 2: Atualizar imports no useItemMutations**
+**Step 2: Update imports in useItemMutations**
 
-No arquivo `frontend/src/queries/useItemMutations.ts`, substituir linha 2-8:
+In file `frontend/src/queries/useItemMutations.ts`, replace lines 2-8:
 
 ```typescript
 import {
@@ -281,40 +281,40 @@ import {
 } from "../api/item";
 ```
 
-**Passo 3: Atualizar useToggleItem para usar updateItem**
+**Step 3: Update useToggleItem to use updateItem**
 
-No arquivo `frontend/src/queries/useItemMutations.ts`, substituir linha 74 (mutationFn):
+In file `frontend/src/queries/useItemMutations.ts`, replace line 74 (mutationFn):
 
 ```typescript
 mutationFn: updateItem,
 ```
 
-**Passo 4: Testar manualmente**
+**Step 4: Test manually**
 
-Execute: `npm run dev`
+Run: `npm run dev`
 
-Expected: Funcionalidade de toggle continua funcionando, mas usando updateItem.
+Expected: Toggle functionality continues to work, but using updateItem.
 
-**Passo 5: Commit**
+**Step 5: Commit**
 
 ```bash
 git add frontend/src/api/item.ts frontend/src/queries/useItemMutations.ts
-git commit -m "refactor: remover toggleItem duplicado, usar updateItem"
+git commit -m "refactor: remove duplicated toggleItem, use updateItem"
 ```
 
 ---
 
-## Task 6: Extrair header ngrok para configuração centralizada
+## Task 6: Extract ngrok header to centralized configuration
 
-**Arquivos:**
-- Criar: `frontend/src/api/client.ts`
-- Modificar: `frontend/src/api/item.ts`
+**Files:**
+- Create: `frontend/src/api/client.ts`
+- Modify: `frontend/src/api/item.ts`
 
-**Problema:** Header `ngrok-skip-browser-warning` hardcoded em múltiplas chamadas.
+**Problem:** Header `ngrok-skip-browser-warning` hardcoded in multiple calls.
 
-**Passo 1: Criar client HTTP configurado**
+**Step 1: Create configured HTTP client**
 
-Criar arquivo `frontend/src/api/client.ts`:
+Create file `frontend/src/api/client.ts`:
 
 ```typescript
 const API_CLIENT = {
@@ -331,17 +331,17 @@ export async function apiRequest(url: string, options?: RequestInit): Promise<Re
 }
 ```
 
-**Passo 2: Atualizar imports no item.ts**
+**Step 2: Update imports in item.ts**
 
-Na linha 9 de `frontend/src/api/item.ts`, adicionar após a linha do BASE_URL:
+On line 9 of `frontend/src/api/item.ts`, add after the BASE_URL line:
 
 ```typescript
 import { apiRequest } from "./client";
 ```
 
-**Passo 3: Substituir fetch por apiRequest em listItems**
+**Step 3: Replace fetch with apiRequest in listItems**
 
-Substituir linhas 11-16 em `frontend/src/api/item.ts`:
+Replace lines 11-16 in `frontend/src/api/item.ts`:
 
 ```typescript
 export async function listItems(): Promise<Item[]> {
@@ -356,9 +356,9 @@ export async function listItems(): Promise<Item[]> {
 }
 ```
 
-**Passo 4: Substituir fetch por apiRequest em createItem**
+**Step 4: Replace fetch with apiRequest in createItem**
 
-Substituir linhas 26-34 em `frontend/src/api/item.ts`:
+Replace lines 26-34 in `frontend/src/api/item.ts`:
 
 ```typescript
 export async function createItem(data: { name: string }): Promise<Item> {
@@ -379,9 +379,9 @@ export async function createItem(data: { name: string }): Promise<Item> {
 }
 ```
 
-**Passo 5: Substituir fetch por apiRequest em deleteItem**
+**Step 5: Replace fetch with apiRequest in deleteItem**
 
-Substituir linhas 44-50 em `frontend/src/api/item.ts`:
+Replace lines 44-50 in `frontend/src/api/item.ts`:
 
 ```typescript
 export async function deleteItem(id: string): Promise<void> {
@@ -397,9 +397,9 @@ export async function deleteItem(id: string): Promise<void> {
 }
 ```
 
-**Passo 6: Substituir fetch por apiRequest em updateItem**
+**Step 6: Replace fetch with apiRequest in updateItem**
 
-Substituir linhas 77-85 em `frontend/src/api/item.ts`:
+Replace lines 77-85 in `frontend/src/api/item.ts`:
 
 ```typescript
 export async function updateItem(item: Item): Promise<Item> {
@@ -420,39 +420,39 @@ export async function updateItem(item: Item): Promise<Item> {
 }
 ```
 
-**Passo 7: Testar manualmente**
+**Step 7: Test manually**
 
-Execute: `npm run dev`
+Run: `npm run dev`
 
-Expected: Todas as chamadas de API funcionam com o header ngrok aplicado automaticamente.
+Expected: All API calls work with the ngrok header applied automatically.
 
-**Passo 8: Commit**
+**Step 8: Commit**
 
 ```bash
 git add frontend/src/api/client.ts frontend/src/api/item.ts
-git commit -m "refactor: centralizar configuração HTTP e header ngrok"
+git commit -m "refactor: centralize HTTP configuration and ngrok header"
 ```
 
 ---
 
-## Task 7: Adicionar `React.memo` no `ListItem`
+## Task 7: Add `React.memo` to `ListItem`
 
-**Arquivos:**
-- Modificar: `frontend/src/components/ListItem.tsx:1,22-139`
+**Files:**
+- Modify: `frontend/src/components/ListItem.tsx:1,22-139`
 
-**Problema:** Componente re-renderiza quando outros itens mudam.
+**Problem:** Component re-renders when other items change.
 
-**Passo 1: Adicionar React aos imports**
+**Step 1: Add React to imports**
 
-Substituir linha 1 de `frontend/src/components/ListItem.tsx`:
+Replace line 1 of `frontend/src/components/ListItem.tsx`:
 
 ```typescript
 import React, { useEffect, useRef } from "react";
 ```
 
-**Passo 2: Envolver componente com React.memo**
+**Step 2: Wrap component with React.memo**
 
-Substituir linhas 22-139 (declaração do componente) por:
+Replace lines 22-139 (component declaration) with:
 
 ```typescript
 export const ListItem = React.memo(function ListItem({
@@ -576,32 +576,32 @@ export const ListItem = React.memo(function ListItem({
 });
 ```
 
-**Passo 3: Testar manualmente**
+**Step 3: Test manually**
 
-Execute: `npm run dev`
+Run: `npm run dev`
 
-Expected: Componente funciona normalmente, mas não re-renderiza quando outros itens mudam.
+Expected: Component works normally, but doesn't re-render when other items change.
 
-**Passo 4: Commit**
+**Step 4: Commit**
 
 ```bash
 git add frontend/src/components/ListItem.tsx
-git commit -m "perf: adicionar React.memo no ListItem para evitar re-renders desnecessários"
+git commit -m "perf: add React.memo to ListItem to avoid unnecessary re-renders"
 ```
 
 ---
 
-## Task 8: Melhorar navegação por teclado
+## Task 8: Improve keyboard navigation
 
-**Arquivos:**
-- Modificar: `frontend/src/pages/ListPage.tsx`
-- Modificar: `frontend/src/components/ListItem.tsx`
+**Files:**
+- Modify: `frontend/src/pages/ListPage.tsx`
+- Modify: `frontend/src/components/ListItem.tsx`
 
-**Problema:** Falta suporte adequado para navegação por teclado.
+**Problem:** Lacks adequate keyboard navigation support.
 
-**Passo 1: Criar hook customizado useKeyboardNavigation**
+**Step 1: Create custom hook useKeyboardNavigation**
 
-Criar arquivo `frontend/src/hooks/useKeyboardNavigation.ts`:
+Create file `frontend/src/hooks/useKeyboardNavigation.ts`:
 
 ```typescript
 import { useEffect } from "react";
@@ -645,93 +645,93 @@ export function useKeyboardNavigation(
 }
 ```
 
-**Passo 2: Testar manualmente**
+**Step 2: Test manually**
 
-Execute: `npm run dev`
+Run: `npm run dev`
 
-Expected: Navegação por teclado funciona consistentemente em toda a aplicação.
+Expected: Keyboard navigation works consistently throughout the application.
 
-**Passo 3: Commit**
+**Step 3: Commit**
 
 ```bash
 git add frontend/src/hooks/useKeyboardNavigation.ts
-git commit -m "feat: adicionar hook useKeyboardNavigation para melhorar acessibilidade"
+git commit -m "feat: add useKeyboardNavigation hook to improve accessibility"
 ```
 
 ---
 
-# PARTE 3: BAIXA PRIORIDADE
+# PART 3: LOW PRIORITY
 
-## Task 9: Análise de contraste de cores
+## Task 9: Color contrast analysis
 
-**Arquivos:**
-- Documentação: `docs/accessibility/contrast-analysis.md`
+**Files:**
+- Documentation: `docs/accessibility/contrast-analysis.md`
 
-**Passo 1: Criar diretório de documentação de acessibilidade**
+**Step 1: Create accessibility documentation directory**
 
 ```bash
 mkdir -p docs/accessibility
 ```
 
-**Passo 2: Criar documento de análise de contraste**
+**Step 2: Create contrast analysis document**
 
-Criar arquivo `docs/accessibility/contrast-analysis.md`:
+Create file `docs/accessibility/contrast-analysis.md`:
 
 ```markdown
-# Análise de Contraste de Cores
+# Color Contrast Analysis
 
-## Cores Atuais
+## Current Colors
 
-### Modo Claro
-- Texto primário: `text-gray-900` (#111827) - AA+ com fundo branco
-- Texto secundário: `text-gray-500` (#6B7280) - AA com fundo branco
-- Botão verde: `bg-green-600` (#16A34A) - AA+ com texto branco
-- Botão azul: `bg-blue-600` (#2563EB) - AA+ com texto branco
-- Botão amarelo: `bg-yellow-600` (#CA8A04) - AA com texto branco
-- Botão vermelho: `bg-red-600` (#DC2626) - AA+ com texto branco
+### Light Mode
+- Primary text: `text-gray-900` (#111827) - AA+ with white background
+- Secondary text: `text-gray-500` (#6B7280) - AA with white background
+- Green button: `bg-green-600` (#16A34A) - AA+ with white text
+- Blue button: `bg-blue-600` (#2563EB) - AA+ with white text
+- Yellow button: `bg-yellow-600` (#CA8A04) - AA with white text
+- Red button: `bg-red-600` (#DC2626) - AA+ with white text
 
-### Modo Escuro
-- Texto primário: `dark:text-gray-100` (#F3F4F6) - AA+ com fundo escuro
-- Texto secundário: `dark:text-gray-300` (#D1D5DB) - AA+ com fundo escuro
+### Dark Mode
+- Primary text: `dark:text-gray-100` (#F3F4F6) - AA+ with dark background
+- Secondary text: `dark:text-gray-300` (#D1D5DB) - AA+ with dark background
 
-## Recomendações
+## Recommendations
 
-Todas as cores atuais atendem aos padrões WCAG AA. Para melhorar para AAA:
+All current colors meet WCAG AA standards. To improve to AAA:
 
-1. Considerar aumentar o contraste do botão amarelo para `bg-yellow-700`
-2. Adicionar indicadores visuais além de cor (ícones, texto)
+1. Consider increasing the contrast of the yellow button to `bg-yellow-700`
+2. Add visual indicators beyond color (icons, text)
 
-## Ferramentas de Validação
+## Validation Tools
 
 - [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
 - [Colour Contrast Analyser (CCA)](https://www.tpgi.com/color-contrast-checker/)
 ```
 
-**Passo 3: Commit**
+**Step 3: Commit**
 
 ```bash
 git add docs/accessibility/contrast-analysis.md
-git commit -m "docs: adicionar análise de contraste de cores para acessibilidade"
+git commit -m "docs: add color contrast analysis for accessibility"
 ```
 
 ---
 
-## Task 10: Testes de unidade e integração
+## Task 10: Unit and integration tests
 
-**Arquivos:**
-- Criar: `frontend/src/components/__tests__/ListItem.test.tsx`
-- Criar: `frontend/src/pages/__tests__/ListPage.test.tsx`
-- Criar: `frontend/src/api/__tests__/item.test.ts`
+**Files:**
+- Create: `frontend/src/components/__tests__/ListItem.test.tsx`
+- Create: `frontend/src/pages/__tests__/ListPage.test.tsx`
+- Create: `frontend/src/api/__tests__/item.test.ts`
 
-**Pré-requisitos:** Configurar Vitest e React Testing Library se não estiverem configurados.
+**Prerequisites:** Configure Vitest and React Testing Library if not yet configured.
 
-**Passo 1: Verificar se Vitest está configurado**
+**Step 1: Verify if Vitest is configured**
 
-Verificar arquivo `frontend/vite.config.ts` e `frontend/package.json` para dependências de teste.
+Check `frontend/vite.config.ts` and `frontend/package.json` for test dependencies.
 
-**Passo 2: Criar teste para ListItem**
+**Step 2: Create test for ListItem**
 
-Criar arquivo `frontend/src/components/__tests__/ListItem.test.tsx`:
+Create file `frontend/src/components/__tests__/ListItem.test.tsx`:
 
 ```typescript
 import { describe, it, expect, vi } from "vitest";
@@ -818,9 +818,9 @@ describe("ListItem", () => {
 });
 ```
 
-**Passo 3: Criar teste para API client**
+**Step 3: Create test for API client**
 
-Criar arquivo `frontend/src/api/__tests__/client.test.ts`:
+Create file `frontend/src/api/__tests__/client.test.ts`:
 
 ```typescript
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -876,72 +876,72 @@ describe("apiRequest", () => {
 });
 ```
 
-**Passo 4: Rodar os testes**
+**Step 4: Run tests**
 
-Execute: `npm run test`
+Run: `npm run test`
 
-Expected: Todos os testes passam.
+Expected: All tests pass.
 
-**Passo 5: Commit**
+**Step 5: Commit**
 
 ```bash
 git add frontend/src/components/__tests__/ frontend/src/api/__tests__/
-git commit -m "test: adicionar testes de unidade para ListItem e apiRequest"
+git commit -m "test: add unit tests for ListItem and apiRequest"
 ```
 
 ---
 
-# FINALIZAÇÃO
+# FINALIZATION
 
-## Task 11: Limpeza e Documentação
+## Task 11: Cleanup and Documentation
 
-**Passo 1: Atualizar next-steps.md**
+**Step 1: Update next-steps.md**
 
-Marcar itens concluídos no arquivo `memory-bank/next-steps.md`.
+Mark completed items in file `memory-bank/next-steps.md`.
 
-**Passo 2: Criar ADR para mudanças de performance**
+**Step 2: Create ADR for performance changes**
 
-Se necessário, criar ADR documentando decisões de otimização.
+If necessary, create ADR documenting optimization decisions.
 
-**Passo 3: Commit final**
+**Step 3: Final commit**
 
 ```bash
 git add memory-bank/next-steps.md docs/adr/
-git commit -m "docs: atualizar documentação com melhorias implementadas"
+git commit -m "docs: update documentation with implemented improvements"
 ```
 
 ---
 
-# Checklist de Verificação
+# Verification Checklist
 
-Antes de considerar o plano completo:
+Before considering the plan complete:
 
-- [ ] Task 1: useMemo no sortedItems
-- [ ] Task 2: max-w-2xl no container
-- [ ] Task 3: Remover h-screen do empty state
-- [ ] Task 4: useCallback nos handlers
-- [ ] Task 5: Unificar toggleItem e updateItem
-- [ ] Task 6: Centralizar configuração HTTP
-- [ ] Task 7: React.memo no ListItem
-- [ ] Task 8: Hook useKeyboardNavigation
-- [ ] Task 9: Análise de contraste
-- [ ] Task 10: Testes de unidade
-- [ ] Task 11: Documentação atualizada
-
----
-
-# Observações Importantes
-
-1. **TDD:** Sempre escreva testes antes de implementar (quando aplicável)
-2. **Commits frequentes:** Cada task deve ter seu próprio commit
-3. **Testes manuais:** Após cada mudança, teste a aplicação manualmente
-4. **YAGNI:** Não adicione funcionalidades extras não solicitadas
-5. **DRY:** Reuse código existente sempre que possível
+- [ ] Task 1: useMemo in sortedItems
+- [ ] Task 2: max-w-2xl in container
+- [ ] Task 3: Remove h-screen from empty state
+- [ ] Task 4: useCallback in handlers
+- [ ] Task 5: Unify toggleItem and updateItem
+- [ ] Task 6: Centralize HTTP configuration
+- [ ] Task 7: React.memo in ListItem
+- [ ] Task 8: useKeyboardNavigation hook
+- [ ] Task 9: Contrast analysis
+- [ ] Task 10: Unit tests
+- [ ] Task 11: Updated documentation
 
 ---
 
-## Referências
+# Important Notes
 
-- Documentação original: `memory-bank/next-steps.md`
-- ADRs existentes: `docs/adr/`
-- Código atual: `frontend/src/`
+1. **TDD:** Always write tests before implementing (when applicable)
+2. **Frequent commits:** Each task should have its own commit
+3. **Manual testing:** After each change, test the application manually
+4. **YAGNI:** Do not add extra unsolicited features
+5. **DRY:** Reuse existing code whenever possible
+
+---
+
+## References
+
+- Original documentation: `memory-bank/next-steps.md`
+- Existing ADRs: `docs/adr/`
+- Current code: `frontend/src/`
