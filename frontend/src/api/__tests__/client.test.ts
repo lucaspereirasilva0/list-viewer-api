@@ -1,15 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { apiRequest } from "../client";
 
-global.fetch = vi.fn();
-
 describe("apiRequest", () => {
   beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
     vi.resetAllMocks();
   });
 
   it("deve adicionar header ngrok-skip-browser-warning", async () => {
-    const mockFetch = global.fetch as unknown as ReturnType<typeof vi.fn>;
+    const mockFetch = vi.mocked(fetch);
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({}),
@@ -23,12 +22,12 @@ describe("apiRequest", () => {
         headers: expect.objectContaining({
           "ngrok-skip-browser-warning": "true",
         }),
-      })
+      }),
     );
   });
 
   it("deve mesclar headers personalizados", async () => {
-    const mockFetch = global.fetch as unknown as ReturnType<typeof vi.fn>;
+    const mockFetch = vi.mocked(fetch);
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({}),
@@ -45,7 +44,7 @@ describe("apiRequest", () => {
           "ngrok-skip-browser-warning": "true",
           "Content-Type": "application/json",
         }),
-      })
+      }),
     );
   });
 });

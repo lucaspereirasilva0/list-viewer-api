@@ -22,7 +22,7 @@ describe("ListItem", () => {
         onEdit={vi.fn()}
         onSaveEdit={vi.fn()}
         onCancelEdit={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText("Test Item")).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe("ListItem", () => {
         onEdit={vi.fn()}
         onSaveEdit={vi.fn()}
         onCancelEdit={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByLabelText("Desmarcar item")).toBeInTheDocument();
@@ -54,7 +54,7 @@ describe("ListItem", () => {
         onEdit={vi.fn()}
         onSaveEdit={vi.fn()}
         onCancelEdit={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByLabelText("Editar item")).toBeInTheDocument();
@@ -73,7 +73,7 @@ describe("ListItem", () => {
         onEdit={vi.fn()}
         onSaveEdit={vi.fn()}
         onCancelEdit={vi.fn()}
-      />
+      />,
     );
 
     const itemText = screen.getByText("Test Item");

@@ -52,15 +52,32 @@ export function ListPage() {
     }
   }, [isAddingNewItem]);
 
+  const [isSubmittingNewItem, setIsSubmittingNewItem] = useState(false);
+  const isSubmittingRef = useRef(false);
+
   const handleCreateSubmit = useCallback(() => {
+    // Bloqueio síncrono para evitar race condition entre onBlur e clique no botão
+    if (createItem.isPending || isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+    setIsSubmittingNewItem(true);
     const name = contentEditableNewItemRef.current?.innerText.trim() || "";
-    if (!name) return;
+    if (!name) {
+      setIsSubmittingNewItem(false);
+      isSubmittingRef.current = false;
+      return;
+    }
     createItem.mutate(
       { name: name },
       {
         onSuccess: () => {
           setNewItemName("");
           setIsAddingNewItem(false);
+          setIsSubmittingNewItem(false);
+          isSubmittingRef.current = false;
+        },
+        onError: () => {
+          setIsSubmittingNewItem(false);
+          isSubmittingRef.current = false;
         },
       },
     );
@@ -69,35 +86,46 @@ export function ListPage() {
   const handleCancelNewItem = useCallback(() => {
     setIsAddingNewItem(false);
     setNewItemName("");
+    setIsSubmittingNewItem(false);
+    isSubmittingRef.current = false;
   }, []);
 
   const handleEdit = useCallback((item: Item) => {
     setEditingItemId(item.id);
   }, []);
 
-  const handleSaveEdit = useCallback((item: Item) => {
-    if (!item.name.trim()) return;
-    updateItem.mutate(
-      { ...item, name: item.name.trim() },
-      {
-        onSuccess: () => {
-          setEditingItemId(null);
+  const handleSaveEdit = useCallback(
+    (item: Item) => {
+      if (!item.name.trim()) return;
+      updateItem.mutate(
+        { ...item, name: item.name.trim() },
+        {
+          onSuccess: () => {
+            setEditingItemId(null);
+          },
         },
-      },
-    );
-  }, [updateItem]);
+      );
+    },
+    [updateItem],
+  );
 
   const handleCancelEdit = useCallback(() => {
     setEditingItemId(null);
   }, []);
 
-  const handleToggle = useCallback((item: Item) => {
-    toggleItem.mutate({ ...item, active: !item.active });
-  }, [toggleItem]);
+  const handleToggle = useCallback(
+    (item: Item) => {
+      toggleItem.mutate({ ...item, active: !item.active });
+    },
+    [toggleItem],
+  );
 
-  const handleDelete = useCallback((id: string) => {
-    deleteItem.mutate(id);
-  }, [deleteItem]);
+  const handleDelete = useCallback(
+    (id: string) => {
+      deleteItem.mutate(id);
+    },
+    [deleteItem],
+  );
 
   const sortedItems = useMemo(() => {
     if (!items) return undefined;
@@ -135,8 +163,10 @@ export function ListPage() {
         <div className="relative w-full flex items-center bg-white shadow-md rounded-lg p-4 transition-all duration-200 ease-in-out hover:shadow-lg mb-3">
           <div
             ref={contentEditableNewItemRef}
-            className="flex-1 text-lg font-medium text-gray-900 outline-none"
-            contentEditable={true}
+            className={`flex-1 text-lg font-medium outline-none ${
+              isSubmittingNewItem ? "text-gray-400" : "text-gray-900"
+            }`}
+            contentEditable={!isSubmittingNewItem}
             suppressContentEditableWarning={true}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -149,7 +179,8 @@ export function ListPage() {
               }
             }}
             onBlur={(e) => {
-              if (createItem.isPending) return; // Prevent duplicate submission if already pending
+              // Usa o ref síncrono para evitar race condition
+              if (createItem.isPending || isSubmittingRef.current) return;
               const name = e.currentTarget.innerText.trim();
               if (!name) {
                 handleCancelNewItem();
@@ -163,15 +194,25 @@ export function ListPage() {
           <div className="flex items-center flex-wrap justify-end gap-2 ml-2">
             <button
               onClick={handleCreateSubmit}
+              disabled={isSubmittingNewItem}
               aria-label="Adicionar item"
-              className="p-1 bg-green-600 text-white rounded-md font-semibold hover:bg-green-700 transition-colors duration-200 text-sm"
+              className={`p-1 text-white rounded-md font-semibold transition-colors duration-200 text-sm ${
+                isSubmittingNewItem
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
             >
               <FaCheck className="w-4 h-4" />
             </button>
             <button
               onClick={handleCancelNewItem}
+              disabled={isSubmittingNewItem}
               aria-label="Cancelar adição de item"
-              className="p-1 bg-gray-500 text-white rounded-md font-semibold hover:bg-gray-600 transition-colors duration-200 text-sm"
+              className={`p-1 text-white rounded-md font-semibold transition-colors duration-200 text-sm ${
+                isSubmittingNewItem
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gray-500 hover:bg-gray-600"
+              }`}
             >
               <FaTimes className="w-4 h-4" />
             </button>
