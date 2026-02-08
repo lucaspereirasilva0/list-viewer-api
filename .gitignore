@@ -57,3 +57,6 @@ AGENTS.md
 
 # Frontend dist directory
 /frontend/dist/
+
+# ---- Git Worktrees ----
+.worktrees/
