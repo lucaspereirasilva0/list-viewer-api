@@ -1,13 +1,16 @@
-import { useItems } from "../queries/useItems";
-import { useDeleteItem, useToggleItem } from "../queries/useItemMutations";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FaCheck, FaPlus, FaTimes } from "react-icons/fa";
 import { Item } from "../api/item";
 import ErrorBanner from "../components/ErrorBanner";
-import { useState, useRef, useEffect } from "react";
-import { useCreateItem } from "../queries/useItemMutations";
-import { useUpdateItem } from "../queries/useItemMutations";
 import { ItemSkeleton } from "../components/ItemSkeleton";
 import { ListItem } from "../components/ListItem";
-import { FaCheck, FaTimes, FaPlus } from "react-icons/fa";
+import {
+  useCreateItem,
+  useDeleteItem,
+  useToggleItem,
+  useUpdateItem,
+} from "../queries/useItemMutations";
+import { useItems } from "../queries/useItems";
 
 export function ListPage() {
   const { data: items, isLoading, error } = useItems();
@@ -49,58 +52,174 @@ export function ListPage() {
     }
   }, [isAddingNewItem]);
 
-  const handleCreateSubmit = () => {
+  const [isSubmittingNewItem, setIsSubmittingNewItem] = useState(false);
+  const isSubmittingRef = useRef(false);
+
+  const handleCreateSubmit = useCallback(() => {
+    // Bloqueio síncrono para evitar race condition entre onBlur e clique no botão
+    if (createItem.isPending || isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+    setIsSubmittingNewItem(true);
     const name = contentEditableNewItemRef.current?.innerText.trim() || "";
-    if (!name) return;
+    if (!name) {
+      setIsSubmittingNewItem(false);
+      isSubmittingRef.current = false;
+      return;
+    }
     createItem.mutate(
       { name: name },
       {
         onSuccess: () => {
           setNewItemName("");
           setIsAddingNewItem(false);
+          setIsSubmittingNewItem(false);
+          isSubmittingRef.current = false;
+        },
+        onError: () => {
+          setIsSubmittingNewItem(false);
+          isSubmittingRef.current = false;
         },
       },
     );
-  };
+  }, [createItem]);
 
-  const handleCancelNewItem = () => {
+  const handleCancelNewItem = useCallback(() => {
     setIsAddingNewItem(false);
     setNewItemName("");
-  };
+    setIsSubmittingNewItem(false);
+    isSubmittingRef.current = false;
+  }, []);
 
-  const handleEdit = (item: Item) => {
+  const handleEdit = useCallback((item: Item) => {
     setEditingItemId(item.id);
-  };
+  }, []);
 
-  const handleSaveEdit = (item: Item) => {
-    if (!item.name.trim()) return;
-    updateItem.mutate(
-      { ...item, name: item.name.trim() },
-      {
-        onSuccess: () => {
-          setEditingItemId(null);
+  const handleSaveEdit = useCallback(
+    (item: Item) => {
+      if (!item.name.trim()) return;
+      updateItem.mutate(
+        { ...item, name: item.name.trim() },
+        {
+          onSuccess: () => {
+            setEditingItemId(null);
+          },
         },
-      },
-    );
-  };
+      );
+    },
+    [updateItem],
+  );
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setEditingItemId(null);
-  };
+  }, []);
 
-  const handleToggle = (item: Item) => {
-    toggleItem.mutate({ ...item, active: !item.active });
-  };
+  const handleToggle = useCallback(
+    (item: Item) => {
+      toggleItem.mutate({ ...item, active: !item.active });
+    },
+    [toggleItem],
+  );
 
-  const handleDelete = (id: string) => {
-    deleteItem.mutate(id);
-  };
+  const handleDelete = useCallback(
+    (id: string) => {
+      deleteItem.mutate(id);
+    },
+    [deleteItem],
+  );
+
+  const sortedItems = useMemo(() => {
+    if (!items) return undefined;
+    return [...items].sort((a, b) => {
+      // Primary sort by active status (true first)
+      const activeComparison = (b.active ? 1 : 0) - (a.active ? 1 : 0);
+      if (activeComparison !== 0) {
+        return activeComparison;
+      }
+      // Secondary sort by updatedAt (descending)
+      return Date.parse(b.updatedAt) - Date.parse(a.updatedAt);
+    });
+  }, [items]);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">
-        Sua Lista de Compras
-      </h1>
+    <div className="container mx-auto p-4 max-w-2xl">
+      <div className="flex items-center justify-center mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mr-2">
+          Sua Lista de Compras
+        </h1>
+        <div className="flex items-center">
+          {!isAddingNewItem ? (
+            <button
+              onClick={() => setIsAddingNewItem(true)}
+              aria-label="Adicionar novo item"
+              className="p-2 bg-blue-600 text-white font-bold rounded-md shadow-md hover:bg-blue-700 transition-colors duration-200"
+            >
+              <FaPlus className="w-6 h-6" />
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      {isAddingNewItem && (
+        <div className="relative w-full flex items-center bg-white shadow-md rounded-lg p-4 transition-all duration-200 ease-in-out hover:shadow-lg mb-3">
+          <div
+            ref={contentEditableNewItemRef}
+            className={`flex-1 text-lg font-medium outline-none ${
+              isSubmittingNewItem ? "text-gray-400" : "text-gray-900"
+            }`}
+            contentEditable={!isSubmittingNewItem}
+            suppressContentEditableWarning={true}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleCreateSubmit();
+              }
+              if (e.key === "Escape") {
+                e.preventDefault();
+                handleCancelNewItem();
+              }
+            }}
+            onBlur={(e) => {
+              // Usa o ref síncrono para evitar race condition
+              if (createItem.isPending || isSubmittingRef.current) return;
+              const name = e.currentTarget.innerText.trim();
+              if (!name) {
+                handleCancelNewItem();
+              } else {
+                handleCreateSubmit();
+              }
+            }}
+          >
+            {newItemName || "\u00A0"}
+          </div>
+          <div className="flex items-center flex-wrap justify-end gap-2 ml-2">
+            <button
+              onClick={handleCreateSubmit}
+              disabled={isSubmittingNewItem}
+              aria-label="Adicionar item"
+              className={`p-1 text-white rounded-md font-semibold transition-colors duration-200 text-sm ${
+                isSubmittingNewItem
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
+            >
+              <FaCheck className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleCancelNewItem}
+              disabled={isSubmittingNewItem}
+              aria-label="Cancelar adição de item"
+              className={`p-1 text-white rounded-md font-semibold transition-colors duration-200 text-sm ${
+                isSubmittingNewItem
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gray-500 hover:bg-gray-600"
+              }`}
+            >
+              <FaTimes className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {isLoading && (
         <ul className="space-y-3 mt-4">
           {[...Array(3)].map((_, index) => (
@@ -113,8 +232,8 @@ export function ListPage() {
 
       {!isLoading && !error && (
         <>
-          {(!items || items.length === 0) && !isAddingNewItem ? (
-            <div className="flex flex-col items-center justify-center h-screen px-4">
+          {(!sortedItems || sortedItems.length === 0) && (
+            <div className="flex flex-col items-center justify-center min-h-[40vh] sm:min-h-[50vh] lg:min-h-[60vh] px-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -133,97 +252,24 @@ export function ListPage() {
               <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-4 text-center">
                 Parece que sua lista de compras está vazia.
               </p>
-              <button
-                onClick={() => {
-                  setIsAddingNewItem(true);
-                  setNewItemName("");
-                }}
-                aria-label="Adicione seu primeiro item!"
-                className="p-2 bg-blue-600 text-white font-bold rounded-md shadow-md hover:bg-blue-700 transition-colors duration-200"
-              >
-                <FaPlus className="w-6 h-6" />
-              </button>
             </div>
-          ) : (
-            <>
-              <ul className="space-y-3">
-                {isAddingNewItem && (
-                  <li className="flex items-center justify-between bg-white shadow-md rounded-lg p-4 transition-all duration-200 ease-in-out hover:shadow-lg">
-                    <div
-                      ref={contentEditableNewItemRef}
-                      className="flex-1 text-lg font-medium text-gray-900"
-                      contentEditable={true}
-                      suppressContentEditableWarning={true}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleCreateSubmit();
-                        }
-                        if (e.key === "Escape") {
-                          e.preventDefault();
-                          handleCancelNewItem();
-                        }
-                      }}
-                      onBlur={(e) => {
-                        const name = e.currentTarget.innerText.trim();
-                        if (!name) {
-                          handleCancelNewItem();
-                        } else {
-                          handleCreateSubmit();
-                        }
-                      }}
-                    >
-                      {newItemName || "\u00A0"}
-                    </div>
-                    <div className="flex items-center flex-wrap justify-end gap-2">
-                      <button
-                        onClick={handleCreateSubmit}
-                        aria-label="Adicionar item"
-                        className="p-2 bg-green-600 text-white rounded-md font-semibold hover:bg-green-700 transition-colors duration-200"
-                      >
-                        <FaCheck className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={handleCancelNewItem}
-                        aria-label="Cancelar adição de item"
-                        className="p-2 bg-gray-500 text-white rounded-md font-semibold hover:bg-gray-600 transition-colors duration-200"
-                      >
-                        <FaTimes className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </li>
-                )}
-                {items &&
-                  items.length > 0 &&
-                  items.map((item) => (
-                    <ListItem
-                      key={item.id}
-                      item={item}
-                      editingItemId={editingItemId}
-                      onToggle={handleToggle}
-                      onDelete={handleDelete}
-                      onEdit={handleEdit}
-                      onSaveEdit={handleSaveEdit}
-                      onCancelEdit={handleCancelEdit}
-                    />
-                  ))}
-              </ul>
+          )}
 
-              {items && items.length > 0 && !isAddingNewItem && (
-                <div className="flex justify-center mt-6">
-                  <button
-                    onClick={() => {
-                      setIsAddingNewItem(true);
-                      setNewItemName("");
-                    }}
-                    aria-label="Adicionar novo item"
-                    className="p-2 bg-blue-600 text-white font-bold rounded-md shadow-md hover:bg-blue-700 transition-colors duration-200"
-                  >
-                    <FaPlus className="w-6 h-6" />
-                  </button>
-                </div>
-              )}
-            </>
+          {sortedItems && sortedItems.length > 0 && (
+            <ul className="space-y-3">
+              {sortedItems.map((item) => (
+                <ListItem
+                  key={item.id}
+                  item={item}
+                  editingItemId={editingItemId}
+                  onToggle={handleToggle}
+                  onDelete={handleDelete}
+                  onEdit={handleEdit}
+                  onSaveEdit={handleSaveEdit}
+                  onCancelEdit={handleCancelEdit}
+                />
+              ))}
+            </ul>
           )}
         </>
       )}

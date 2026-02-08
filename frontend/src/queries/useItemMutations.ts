@@ -1,11 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  createItem,
-  deleteItem,
-  toggleItem,
-  Item,
-  updateItem,
-} from "../api/item";
+import { createItem, deleteItem, Item, updateItem } from "../api/item";
 import toast from "react-hot-toast";
 
 export function useCreateItem() {
@@ -16,7 +10,14 @@ export function useCreateItem() {
       await qc.cancelQueries({ queryKey: ["items"] });
       const previousItems = qc.getQueryData<Item[]>(["items"]);
       const tempId = `optimistic-${Date.now()}`;
-      const optimisticItem = { ...newItem, id: tempId, active: true };
+      const now = new Date().toISOString();
+      const optimisticItem = {
+        ...newItem,
+        id: tempId,
+        active: true,
+        createdAt: now,
+        updatedAt: now,
+      };
 
       qc.setQueryData<Item[]>(["items"], (old) =>
         old ? [...old, optimisticItem] : [optimisticItem],
@@ -39,6 +40,7 @@ export function useCreateItem() {
           : [data],
       );
       toast.success("Item adicionado com sucesso!");
+      qc.invalidateQueries({ queryKey: ["items"] });
     },
   });
 }
@@ -70,16 +72,14 @@ export function useDeleteItem() {
 export function useToggleItem() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: toggleItem,
+    mutationFn: updateItem,
     onMutate: async (itemToToggle) => {
       await qc.cancelQueries({ queryKey: ["items"] });
       const previousItems = qc.getQueryData<Item[]>(["items"]);
       qc.setQueryData<Item[]>(["items"], (old) =>
         old
           ? old.map((item) =>
-              item.id === itemToToggle.id
-                ? { ...item, active: itemToToggle.active }
-                : item,
+              item.id === itemToToggle.id ? itemToToggle : item,
             )
           : [],
       );
@@ -107,11 +107,7 @@ export function useUpdateItem() {
 
       qc.setQueryData<Item[]>(["items"], (old) =>
         old
-          ? old.map((item) =>
-              item.id === updatedItem.id
-                ? { ...item, name: updatedItem.name }
-                : item,
-            )
+          ? old.map((item) => (item.id === updatedItem.id ? updatedItem : item))
           : [],
       );
       return { previousItems };

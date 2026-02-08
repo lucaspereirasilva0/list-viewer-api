@@ -1,5 +1,5 @@
 import { Item } from "../api/item";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   FaCheckCircle,
   FaRegCircle,
@@ -19,7 +19,7 @@ interface ListItemProps {
   onCancelEdit: () => void;
 }
 
-export function ListItem({
+export const ListItem = React.memo(function ListItem({
   item,
   editingItemId,
   onToggle,
@@ -137,4 +137,4 @@ export function ListItem({
       </div>
     </li>
   );
-}
+});

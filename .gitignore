@@ -24,6 +24,8 @@ pnpm-debug.log*
 # VSCode settings (opc.)
 .vscode/
 .cursor/rules
+.claude/
+AGENTS.md
 
 # ---- Go (caso backend esteja no mesmo repo) ----
 # Executáveis e artefatos de build
@@ -52,3 +54,9 @@ pnpm-debug.log*
 # ---- IDEs ----
 .idea/
 *.iml
+
+# Frontend dist directory
+/frontend/dist/
+
+# ---- Git Worktrees ----
+.worktrees/
