@@ -6,6 +6,7 @@ export interface Item {
   active: boolean;
   createdAt: string;
   updatedAt: string;
+  observation?: string;
 }
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? "/api";
@@ -21,13 +22,20 @@ export async function listItems(): Promise<Item[]> {
   return res.json();
 }
 
-export async function createItem(data: { name: string }): Promise<Item> {
+export async function createItem(data: {
+  name: string;
+  observation?: string;
+}): Promise<Item> {
   const res = await apiRequest(`${BASE_URL}/item`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name: data.name, active: true }),
+    body: JSON.stringify({
+      name: data.name,
+      active: true,
+      observation: data.observation,
+    }),
   });
   if (!res.ok) {
     const errorData = await res
