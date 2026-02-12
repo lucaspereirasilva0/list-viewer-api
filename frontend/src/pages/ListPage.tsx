@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FaCheck, FaPlus, FaTimes } from "react-icons/fa";
+import { FaCheck, FaPlus, FaTimes, FaRegComment } from "react-icons/fa";
 import { Item } from "../api/item";
 import ErrorBanner from "../components/ErrorBanner";
 import { ItemSkeleton } from "../components/ItemSkeleton";
@@ -21,7 +21,10 @@ export function ListPage() {
 
   const [isAddingNewItem, setIsAddingNewItem] = useState(false);
   const [newItemName, setNewItemName] = useState("");
+  const [newItemObservation, setNewItemObservation] = useState("");
+  const [isObservationExpanded, setIsObservationExpanded] = useState(false);
   const contentEditableNewItemRef = useRef<HTMLDivElement>(null);
+  const contentEditableObservationRef = useRef<HTMLDivElement>(null);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -66,26 +69,38 @@ export function ListPage() {
       isSubmittingRef.current = false;
       return;
     }
-    createItem.mutate(
-      { name: name },
-      {
-        onSuccess: () => {
-          setNewItemName("");
-          setIsAddingNewItem(false);
-          setIsSubmittingNewItem(false);
-          isSubmittingRef.current = false;
-        },
-        onError: () => {
-          setIsSubmittingNewItem(false);
-          isSubmittingRef.current = false;
-        },
+
+    // Preparar payload com observation - pegar valor direto do ref
+    const payload: { name: string; observation?: string } = { name };
+
+    // Só incluir observation se tiver valor
+    const observationValue =
+      contentEditableObservationRef.current?.innerText.trim() || "";
+    if (observationValue.length > 0) {
+      payload.observation = observationValue;
+    }
+
+    createItem.mutate(payload, {
+      onSuccess: () => {
+        setNewItemName("");
+        setNewItemObservation("");
+        setIsObservationExpanded(false);
+        setIsAddingNewItem(false);
+        setIsSubmittingNewItem(false);
+        isSubmittingRef.current = false;
       },
-    );
+      onError: () => {
+        setIsSubmittingNewItem(false);
+        isSubmittingRef.current = false;
+      },
+    });
   }, [createItem]);
 
   const handleCancelNewItem = useCallback(() => {
     setIsAddingNewItem(false);
     setNewItemName("");
+    setNewItemObservation("");
+    setIsObservationExpanded(false);
     setIsSubmittingNewItem(false);
     isSubmittingRef.current = false;
   }, []);
@@ -160,38 +175,137 @@ export function ListPage() {
       </div>
 
       {isAddingNewItem && (
-        <div className="relative w-full flex items-center bg-white shadow-md rounded-lg p-4 transition-all duration-200 ease-in-out hover:shadow-lg mb-3">
-          <div
-            ref={contentEditableNewItemRef}
-            className={`flex-1 text-lg font-medium outline-none ${
-              isSubmittingNewItem ? "text-gray-400" : "text-gray-900"
-            }`}
-            contentEditable={!isSubmittingNewItem}
-            suppressContentEditableWarning={true}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleCreateSubmit();
-              }
-              if (e.key === "Escape") {
-                e.preventDefault();
-                handleCancelNewItem();
-              }
-            }}
-            onBlur={(e) => {
-              // Usa o ref síncrono para evitar race condition
-              if (createItem.isPending || isSubmittingRef.current) return;
-              const name = e.currentTarget.innerText.trim();
-              if (!name) {
-                handleCancelNewItem();
-              } else {
-                handleCreateSubmit();
-              }
-            }}
-          >
-            {newItemName || "\u00A0"}
+        <div className="relative w-full bg-white shadow-md rounded-lg p-4 transition-all duration-200 ease-in-out hover:shadow-lg mb-3">
+          {/* Campo Nome */}
+          <div className="flex items-center mb-2">
+            <div
+              ref={contentEditableNewItemRef}
+              className={`flex-1 text-lg font-medium outline-none ${
+                isSubmittingNewItem ? "text-gray-400" : "text-gray-900"
+              }`}
+              contentEditable={!isSubmittingNewItem}
+              suppressContentEditableWarning={true}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleCreateSubmit();
+                }
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  handleCancelNewItem();
+                }
+              }}
+              onBlur={(e) => {
+                // Usa o ref síncrono para evitar race condition
+                if (createItem.isPending || isSubmittingRef.current) return;
+
+                // Verifica se o blur foi causado por clique em elementos específicos
+                // O relatedTarget é o elemento que recebeu o foco
+                const relatedTarget = e.relatedTarget as HTMLElement;
+
+                // Não submete se clicou no botão cancelar, no campo de observação ou no botão de alternar observação
+                const isCancelButtonClicked = relatedTarget?.closest(
+                  'button[aria-label="Cancelar adição de item"]',
+                );
+                const isObservationField = relatedTarget?.closest(
+                  '[contenteditable="true"]',
+                );
+                const isObservationToggle = relatedTarget?.closest(
+                  'button[aria-label="Alternar campo de observação"]',
+                );
+
+                if (
+                  isCancelButtonClicked ||
+                  isObservationField ||
+                  isObservationToggle
+                ) {
+                  // Se clicou em qualquer um desses elementos, não submete automaticamente
+                  return;
+                }
+
+                const name = e.currentTarget.innerText.trim();
+                if (!name) {
+                  handleCancelNewItem();
+                } else {
+                  handleCreateSubmit();
+                }
+              }}
+            >
+              {newItemName || "\u00A0"}
+            </div>
           </div>
-          <div className="flex items-center flex-wrap justify-end gap-2 ml-2">
+
+          {/* Campo Observation Expandível */}
+          <div className="mb-2">
+            <button
+              onClick={() => setIsObservationExpanded(!isObservationExpanded)}
+              className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 mb-1"
+              aria-label="Alternar campo de observação"
+            >
+              <FaRegComment />
+              {isObservationExpanded
+                ? "Ocultar observação"
+                : "Adicionar observação"}
+            </button>
+
+            {isObservationExpanded && (
+              <div className="relative">
+                <div
+                  ref={contentEditableObservationRef}
+                  className="w-full min-h-[60px] p-2 border border-gray-300 rounded-md text-sm text-gray-900 outline-none focus:border-blue-500"
+                  contentEditable={!isSubmittingNewItem}
+                  suppressContentEditableWarning={true}
+                  onInput={(e) => {
+                    const text = e.currentTarget.innerText;
+                    // Limitar a 200 caracteres sem atualizar estado
+                    if (text.length > 200) {
+                      e.currentTarget.innerText = text.slice(0, 200);
+                      // Mover cursor para o final
+                      const range = document.createRange();
+                      const selection = window.getSelection();
+                      range.selectNodeContents(e.currentTarget);
+                      range.collapse(false);
+                      selection?.removeAllRanges();
+                      selection?.addRange(range);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Usa o ref síncrono para evitar race condition
+                    if (createItem.isPending || isSubmittingRef.current) return;
+
+                    // Verifica se o blur foi causado por clique no botão cancelar ou adicionar
+                    const relatedTarget = e.relatedTarget as HTMLElement;
+                    const isCancelButtonClicked = relatedTarget?.closest(
+                      'button[aria-label="Cancelar adição de item"]',
+                    );
+                    const isAddButtonClicked = relatedTarget?.closest(
+                      'button[aria-label="Adicionar item"]',
+                    );
+
+                    // Se clicou nos botões, não faz nada (eles vão tratar a ação)
+                    if (isCancelButtonClicked || isAddButtonClicked) {
+                      return;
+                    }
+
+                    // Se saiu do campo de observação, submete o formulário
+                    const name =
+                      contentEditableNewItemRef.current?.innerText.trim() || "";
+                    if (name) {
+                      handleCreateSubmit();
+                    }
+                  }}
+                >
+                  {newItemObservation}
+                </div>
+                <div className="text-xs text-gray-500 mt-1 text-right">
+                  {newItemObservation.length}/200 caracteres
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Botões de Ação */}
+          <div className="flex items-center flex-wrap justify-end gap-2">
             <button
               onClick={handleCreateSubmit}
               disabled={isSubmittingNewItem}
