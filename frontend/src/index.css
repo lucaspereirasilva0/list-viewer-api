@@ -1,3 +1,6 @@
+/* Import Soft Editorial Design Tokens */
+@import './styles/tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities; 

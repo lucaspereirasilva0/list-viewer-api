@@ -3,11 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#2563eb" />
+    <meta name="theme-color" content="#FDFBF7" />
     <title>Lista de Compras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+      // Inline script to prevent flash of wrong theme
+      (function() {
+        const theme = localStorage.getItem('list-viewer-theme') || 'system';
+        const resolvedTheme = theme === 'system'
+          ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : theme;
+        document.documentElement.classList.add(resolvedTheme);
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', resolvedTheme === 'dark' ? '#1A1816' : '#FDFBF7');
+      })();
+    </script>
     <link rel="manifest" href="manifest.webmanifest" />
   </head>
-  <body class="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-50">
+  <body class="min-h-screen bg-surface dark:bg-surface-dark text-charcoal dark:text-text-dark font-body">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

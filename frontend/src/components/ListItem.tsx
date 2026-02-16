@@ -18,6 +18,8 @@ interface ListItemProps {
   onEdit: (item: Item) => void;
   onSaveEdit: (item: Item) => void;
   onCancelEdit: () => void;
+  style?: React.CSSProperties;
+  className?: string;
 }
 
 export const ListItem = React.memo(function ListItem({
@@ -28,6 +30,8 @@ export const ListItem = React.memo(function ListItem({
   onEdit,
   onSaveEdit,
   onCancelEdit,
+  style,
+  className,
 }: ListItemProps) {
   const contentEditableRef = useRef<HTMLDivElement>(null);
   const observationRef = useRef<HTMLDivElement>(null);
@@ -61,15 +65,17 @@ export const ListItem = React.memo(function ListItem({
 
   return (
     <li
-      key={item.id}
-      className="flex flex-col bg-white shadow-md rounded-lg p-4 transition-all duration-200 ease-in-out hover:shadow-lg"
+      style={style}
+      className={`flex flex-col bg-white/90 dark:bg-surface-elevated-dark/95 backdrop-blur-sm shadow-soft dark:shadow-soft-dark rounded-soft p-5 transition-all duration-200 ease-out hover:shadow-elegant dark:hover:shadow-elegant-dark hover:-translate-y-0.5 border-double-editorial ${className || ""}`}
     >
       {/* Linha principal: Nome + Ações */}
       <div className="flex items-center justify-between">
         <div
           ref={contentEditableRef}
-          className={`flex-1 text-lg font-medium ${
-            item.active ? "text-gray-900" : "text-gray-500 line-through"
+          className={`flex-1 text-lg font-display tracking-editorial transition-opacity duration-200 ${
+            item.active
+              ? "text-charcoal dark:text-text-dark"
+              : "text-muted dark:text-muted-dark line-through opacity-60"
           }`}
           contentEditable={editingItemId === item.id}
           suppressContentEditableWarning={true}
@@ -113,20 +119,20 @@ export const ListItem = React.memo(function ListItem({
         >
           {item.name}
         </div>
-        <div className="flex items-center flex-wrap justify-end gap-2">
+        <div className="flex items-center flex-wrap justify-end gap-2 ml-3">
           {editingItemId === item.id ? (
             <>
               <button
                 onClick={() => onSaveEdit(item)}
                 aria-label="Salvar edição"
-                className="p-2 bg-green-600 text-white rounded-md font-semibold hover:bg-green-700 transition-colors duration-200"
+                className="p-2 bg-primary text-white rounded-soft font-semibold transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-soft dark:hover:bg-opacity-90"
               >
                 <FaCheck className="w-5 h-5" />
               </button>
               <button
                 onClick={onCancelEdit}
                 aria-label="Cancelar edição"
-                className="p-2 bg-gray-500 text-white rounded-md font-semibold hover:bg-gray-600 transition-colors duration-200"
+                className="p-2 bg-muted text-white rounded-soft font-semibold transition-all duration-200 ease-out hover:bg-accent hover:scale-[1.02] hover:shadow-soft"
               >
                 <FaTimes className="w-5 h-5" />
               </button>
@@ -137,7 +143,11 @@ export const ListItem = React.memo(function ListItem({
                 onClick={() => onToggle(item)}
                 aria-pressed={item.active}
                 aria-label={item.active ? "Desmarcar item" : "Marcar item"}
-                className={`p-2 rounded-md text-white font-semibold transition-colors duration-200 ${item.active ? "bg-green-600 hover:bg-green-700" : "bg-yellow-600 hover:bg-yellow-700"}`}
+                className={`p-2 rounded-soft font-semibold transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-soft ${
+                  item.active
+                    ? "bg-primary text-white dark:hover:bg-opacity-90"
+                    : "bg-muted/40 text-charcoal dark:text-text-dark hover:bg-accent/20"
+                }`}
               >
                 {item.active ? (
                   <FaCheckCircle className="w-5 h-5" />
@@ -148,14 +158,14 @@ export const ListItem = React.memo(function ListItem({
               <button
                 onClick={() => onEdit(item)}
                 aria-label="Editar item"
-                className="p-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors duration-200"
+                className="p-2 bg-accent text-white rounded-soft font-semibold transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-soft"
               >
                 <FaEdit className="w-5 h-5" />
               </button>
               <button
                 onClick={() => onDelete(item.id)}
                 aria-label="Excluir item"
-                className="p-2 bg-red-600 text-white rounded-md font-semibold hover:bg-red-700 transition-colors duration-200"
+                className="p-2 bg-red-600 text-white rounded-soft font-semibold transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-soft"
               >
                 <FaTrash className="w-5 h-5" />
               </button>
@@ -167,10 +177,10 @@ export const ListItem = React.memo(function ListItem({
                   }
                   aria-label="Alternar exibição da observação"
                   aria-expanded={isObservationExpanded}
-                  className={`p-2 rounded-md font-semibold transition-colors duration-200 ${
+                  className={`p-2 rounded-soft font-semibold transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-soft ${
                     isObservationExpanded
-                      ? "bg-purple-600 hover:bg-purple-700 text-white"
-                      : "bg-gray-200 hover:bg-gray-300 text-gray-600"
+                      ? "bg-primary text-white dark:hover:bg-opacity-90"
+                      : "bg-muted/40 text-charcoal dark:text-text-dark hover:bg-accent/20"
                   }`}
                 >
                   <FaRegComment className="w-5 h-5" />
@@ -183,13 +193,13 @@ export const ListItem = React.memo(function ListItem({
 
       {/* Seção de edição da observação - só aparece durante edição */}
       {editingItemId === item.id && (
-        <div className="mt-3 border-t border-gray-200 pt-3">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="mt-3 border-t border-accent/10 dark:border-border-dark pt-3">
+          <label className="block text-sm font-display font-medium text-charcoal dark:text-text-dark mb-2 tracking-editorial">
             Observação (opcional)
           </label>
           <div
             ref={observationRef}
-            className="outline-none min-h-[60px] p-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="outline-none min-h-[60px] p-3 border border-accent/20 dark:border-border-dark rounded-soft text-charcoal dark:text-text-dark bg-white/80 dark:bg-surface-elevated-dark/80 focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200"
             contentEditable={true}
             suppressContentEditableWarning={true}
             onInput={(e) => {
@@ -242,7 +252,7 @@ export const ListItem = React.memo(function ListItem({
           >
             {editedObservation}
           </div>
-          <div className="text-xs text-gray-400 mt-1 text-right">
+          <div className="text-xs text-muted dark:text-muted-dark mt-1 text-right">
             {editedObservation.length}/200
           </div>
         </div>
@@ -253,10 +263,10 @@ export const ListItem = React.memo(function ListItem({
         isObservationExpanded &&
         item.observation &&
         item.observation.length > 0 && (
-          <div className="mt-3 border-t border-gray-200 pt-3">
-            <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
+          <div className="mt-3 border-t border-accent/10 dark:border-border-dark pt-3 animate-fade-in">
+            <div className="text-sm text-charcoal dark:text-text-dark bg-surface/50 dark:bg-surface-elevated-dark/50 p-3 rounded-soft border border-accent/10 dark:border-border-dark">
               <p className="whitespace-pre-wrap">{item.observation}</p>
-              <div className="text-xs text-gray-400 mt-2 text-right">
+              <div className="text-xs text-muted dark:text-muted-dark mt-2 text-right">
                 {item.observation.length}/200
               </div>
             </div>
