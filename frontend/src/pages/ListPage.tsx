@@ -4,6 +4,7 @@ import { Item } from "../api/item";
 import ErrorBanner from "../components/ErrorBanner";
 import { ItemSkeleton } from "../components/ItemSkeleton";
 import { ListItem } from "../components/ListItem";
+import { ThemeToggle } from "../providers/ThemeToggle";
 import {
   useCreateItem,
   useDeleteItem,
@@ -54,6 +55,35 @@ export function ListPage() {
       }, 0); // Small delay to allow DOM to update
     }
   }, [isAddingNewItem]);
+
+  useEffect(() => {
+    if (isObservationExpanded && contentEditableObservationRef.current) {
+      setTimeout(() => {
+        if (contentEditableObservationRef.current) {
+          contentEditableObservationRef.current.focus();
+          const range = document.createRange();
+          const selection = window.getSelection();
+
+          // Ensure there's a text node to set the cursor on
+          if (!contentEditableObservationRef.current.firstChild) {
+            contentEditableObservationRef.current.appendChild(
+              document.createTextNode(""),
+            );
+          }
+
+          range.setStart(
+            contentEditableObservationRef.current.firstChild,
+            contentEditableObservationRef.current.firstChild.nodeValue
+              ?.length || 0,
+          );
+          range.collapse(true); // Collapse to the end
+
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
+      }, 0); // Small delay to allow DOM to update
+    }
+  }, [isObservationExpanded]);
 
   const [isSubmittingNewItem, setIsSubmittingNewItem] = useState(false);
   const isSubmittingRef = useRef(false);
@@ -157,31 +187,34 @@ export function ListPage() {
 
   return (
     <div className="container mx-auto p-4 max-w-2xl">
-      <div className="flex items-center justify-center mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mr-2">
+      <header className="flex items-center justify-center mb-8 pb-6 border-b border-accent/10 dark:border-border-dark">
+        <h1 className="text-3xl sm:text-4xl font-display font-semibold text-charcoal dark:text-text-dark tracking-editorial mr-4">
           Sua Lista de Compras
         </h1>
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
           {!isAddingNewItem ? (
             <button
               onClick={() => setIsAddingNewItem(true)}
               aria-label="Adicionar novo item"
-              className="p-2 bg-blue-600 text-white font-bold rounded-md shadow-md hover:bg-blue-700 transition-colors duration-200"
+              className="p-3 bg-primary text-white rounded-soft shadow-soft hover:shadow-elegant hover:scale-[1.02] transition-all duration-200 ease-out dark:hover:bg-opacity-90"
             >
               <FaPlus className="w-6 h-6" />
             </button>
           ) : null}
         </div>
-      </div>
+      </header>
 
       {isAddingNewItem && (
-        <div className="relative w-full bg-white shadow-md rounded-lg p-4 transition-all duration-200 ease-in-out hover:shadow-lg mb-3">
+        <div className="relative w-full bg-white/90 dark:bg-surface-elevated-dark/95 backdrop-blur-sm shadow-soft dark:shadow-soft-dark rounded-soft p-5 transition-all duration-200 ease-out hover:shadow-elegant dark:hover:shadow-elegant-dark mb-4 animate-fade-in border-double-editorial">
           {/* Campo Nome */}
-          <div className="flex items-center mb-2">
+          <div className="flex items-center justify-between mb-3">
             <div
               ref={contentEditableNewItemRef}
-              className={`flex-1 text-lg font-medium outline-none ${
-                isSubmittingNewItem ? "text-gray-400" : "text-gray-900"
+              className={`flex-1 text-lg font-display font-medium outline-none ${
+                isSubmittingNewItem
+                  ? "text-muted dark:text-muted-dark"
+                  : "text-charcoal dark:text-text-dark"
               }`}
               contentEditable={!isSubmittingNewItem}
               suppressContentEditableWarning={true}
@@ -236,10 +269,10 @@ export function ListPage() {
           </div>
 
           {/* Campo Observation Expandível */}
-          <div className="mb-2">
+          <div className="mb-3">
             <button
               onClick={() => setIsObservationExpanded(!isObservationExpanded)}
-              className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 mb-1"
+              className="text-sm font-display text-primary dark:text-primary/90 hover:opacity-80 flex items-center gap-2 mb-2 transition-opacity tracking-editorial"
               aria-label="Alternar campo de observação"
             >
               <FaRegComment />
@@ -249,10 +282,10 @@ export function ListPage() {
             </button>
 
             {isObservationExpanded && (
-              <div className="relative">
+              <div className="relative animate-fade-in">
                 <div
                   ref={contentEditableObservationRef}
-                  className="w-full min-h-[60px] p-2 border border-gray-300 rounded-md text-sm text-gray-900 outline-none focus:border-blue-500"
+                  className="w-full min-h-[60px] p-3 border border-accent/20 dark:border-border-dark rounded-soft text-sm text-charcoal dark:text-text-dark font-display outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white/80 dark:bg-surface-elevated-dark/80 transition-all duration-200"
                   contentEditable={!isSubmittingNewItem}
                   suppressContentEditableWarning={true}
                   onInput={(e) => {
@@ -297,7 +330,7 @@ export function ListPage() {
                 >
                   {newItemObservation}
                 </div>
-                <div className="text-xs text-gray-500 mt-1 text-right">
+                <div className="text-xs text-muted dark:text-muted-dark mt-1 text-right">
                   {newItemObservation.length}/200 caracteres
                 </div>
               </div>
@@ -310,10 +343,10 @@ export function ListPage() {
               onClick={handleCreateSubmit}
               disabled={isSubmittingNewItem}
               aria-label="Adicionar item"
-              className={`p-1 text-white rounded-md font-semibold transition-colors duration-200 text-sm ${
+              className={`p-2 text-white rounded-soft font-semibold transition-all duration-200 ease-out ${
                 isSubmittingNewItem
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700"
+                  ? "bg-muted cursor-not-allowed"
+                  : "bg-primary hover:scale-[1.02] hover:shadow-soft dark:hover:bg-opacity-90"
               }`}
             >
               <FaCheck className="w-4 h-4" />
@@ -322,10 +355,10 @@ export function ListPage() {
               onClick={handleCancelNewItem}
               disabled={isSubmittingNewItem}
               aria-label="Cancelar adição de item"
-              className={`p-1 text-white rounded-md font-semibold transition-colors duration-200 text-sm ${
+              className={`p-2 text-white rounded-soft font-semibold transition-all duration-200 ease-out ${
                 isSubmittingNewItem
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gray-500 hover:bg-gray-600"
+                  ? "bg-muted cursor-not-allowed"
+                  : "bg-muted hover:bg-accent hover:scale-[1.02] hover:shadow-soft"
               }`}
             >
               <FaTimes className="w-4 h-4" />
@@ -335,7 +368,7 @@ export function ListPage() {
       )}
 
       {isLoading && (
-        <ul className="space-y-3 mt-4">
+        <ul className="space-y-4 mt-6">
           {[...Array(3)].map((_, index) => (
             <ItemSkeleton key={index} />
           ))}
@@ -348,30 +381,38 @@ export function ListPage() {
         <>
           {(!sortedItems || sortedItems.length === 0) && (
             <div className="flex flex-col items-center justify-center min-h-[40vh] sm:min-h-[50vh] lg:min-h-[60vh] px-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="w-24 h-24 text-gray-400 dark:text-gray-500 mb-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M2.25 3h1.386c.51 0 .955.343 1.023.832l.236 1.626c.092.636.574 1.144 1.206 1.258l7.105 1.185c.677.113 1.238.618 1.458 1.29l1.632 4.903c.237.712-.224 1.453-.94 1.453H9.982a.875.875 0 01-.872-.775l-.277-2.775a.875.875 0 01.872-.975h7.25c.348 0 .638-.282.684-.627l1.01-3.028M2.25 3L.659 6.273M15.75 12h2.25m-11.5 2.25h8.25"
-                />
-              </svg>
+              <div className="mb-8 relative">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-32 h-32 border border-primary/20 rounded-full animate-pulse-soft"></div>
+                </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1"
+                  stroke="currentColor"
+                  className="w-24 h-24 text-primary relative z-10"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M2.25 3h1.386c.51 0 .955.343 1.023.832l.236 1.626c.092.636.574 1.144 1.206 1.258l7.105 1.185c.677.113 1.238.618 1.458 1.29l1.632 4.903c.237.712-.224 1.453-.94 1.453H9.982a.875.875 0 01-.872-.775l-.277-2.775a.875.875 0 01.872-.975h7.25c.348 0 .638-.282.684-.627l1.01-3.028M2.25 3L.659 6.273M15.75 12h2.25m-11.5 2.25h8.25"
+                  />
+                </svg>
+              </div>
 
-              <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-4 text-center">
-                Parece que sua lista de compras está vazia.
+              <p className="text-lg sm:text-xl text-charcoal/70 dark:text-text-dark/70 font-display tracking-editorial mb-2 text-center">
+                Sua lista está vazia
+              </p>
+              <p className="text-sm text-muted dark:text-muted-dark text-center max-w-md">
+                Adicione itens à sua lista de compras usando o botão acima
               </p>
             </div>
           )}
 
           {sortedItems && sortedItems.length > 0 && (
-            <ul className="space-y-3">
-              {sortedItems.map((item) => (
+            <ul className="space-y-4 mt-6">
+              {sortedItems.map((item, index) => (
                 <ListItem
                   key={item.id}
                   item={item}
@@ -381,6 +422,8 @@ export function ListPage() {
                   onEdit={handleEdit}
                   onSaveEdit={handleSaveEdit}
                   onCancelEdit={handleCancelEdit}
+                  style={{ animationDelay: `${index * 50}ms` }}
+                  className="animate-fade-in"
                 />
               ))}
             </ul>

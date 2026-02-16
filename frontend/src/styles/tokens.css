@@ -1,0 +1,97 @@
+/**
+ * Soft Editorial Design Tokens
+ * Premium magazine-inspired design system
+ */
+
+@layer base {
+  :root {
+    /* Colors - Light Theme */
+    --color-primary: #C9A87C;
+    --color-accent: #8B7355;
+    --color-surface: #FDFBF7;
+    --color-surface-elevated: #FFFFFF;
+    --color-text: #2C2C2C;
+    --color-muted: #8E8E8E;
+    --color-border: rgba(139, 115, 85, 0.1);
+
+    /* Shadows - Light */
+    --shadow-soft: 0 2px 12px rgba(44, 44, 44, 0.08);
+    --shadow-elegant: 0 8px 32px rgba(44, 44, 44, 0.12);
+    --shadow-editorial: 0 1px 3px rgba(44, 44, 44, 0.04), 0 1px 2px rgba(44, 44, 44, 0.06);
+
+    /* Border Radius */
+    --radius-soft: 12px;
+
+    /* Spacing */
+    --space-editorial: 0.05em;
+  }
+
+  .dark {
+    /* Colors - Dark Theme (Warm Chocolate) */
+    --color-primary: #D4B896;
+    --color-accent: #A89070;
+    --color-surface: #1A1816;
+    --color-surface-elevated: #242118;
+    --color-text: #F5F1E8;
+    --color-muted: #B8B4AA;
+    --color-border: #3A3630;
+
+    /* Shadows - Dark */
+    --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.4);
+    --shadow-elegant: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-editorial: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* Base styles for Soft Editorial theme */
+@layer base {
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Selection styling */
+  ::selection {
+    background-color: var(--color-primary);
+    color: white;
+  }
+}
+
+/* Double border utility for editorial look */
+@layer utilities {
+  .border-double-editorial {
+    border: 1px solid var(--color-surface);
+    outline: 1px solid var(--color-border);
+    outline-offset: -1px;
+  }
+
+  /* Paper texture effect - Light */
+  .paper-texture {
+    background-color: var(--color-surface);
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(44, 44, 44, 0.01) 2px,
+        rgba(44, 44, 44, 0.01) 4px
+      );
+  }
+
+  /* Paper texture effect - Dark */
+  .dark .paper-texture {
+    background-color: var(--color-surface);
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.02) 2px,
+        rgba(255, 255, 255, 0.02) 4px
+      );
+  }
+}
