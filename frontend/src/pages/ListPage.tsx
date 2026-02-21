@@ -5,6 +5,7 @@ import ErrorBanner from "../components/ErrorBanner";
 import { ItemSkeleton } from "../components/ItemSkeleton";
 import { ListItem } from "../components/ListItem";
 import { ThemeToggle } from "../providers/ThemeToggle";
+import { ToggleAllButton } from "../components/ToggleAllButton";
 import {
   useCreateItem,
   useDeleteItem,
@@ -193,6 +194,13 @@ export function ListPage() {
         </h1>
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          {/* Botão ToggleAll - só mostra quando há itens E não está adicionando novo item */}
+          {!isAddingNewItem && sortedItems && sortedItems.length > 0 && (
+            <ToggleAllButton
+              items={sortedItems}
+              disabled={createItem.isPending || updateItem.isPending}
+            />
+          )}
           {!isAddingNewItem ? (
             <button
               onClick={() => setIsAddingNewItem(true)}

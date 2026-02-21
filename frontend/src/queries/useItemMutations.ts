@@ -1,5 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createItem, deleteItem, Item, updateItem } from "../api/item";
+import {
+  bulkUpdateActive,
+  createItem,
+  deleteItem,
+  Item,
+  updateItem,
+} from "../api/item";
 import toast from "react-hot-toast";
 
 export function useCreateItem() {
@@ -120,6 +126,64 @@ export function useUpdateItem() {
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: ["items"] });
+    },
+  });
+}
+
+export function useToggleAllItems() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (items: Item[]) => {
+      const activeCount = items.filter((item) => item.active).length;
+      const targetActive = activeCount <= items.length / 2;
+
+      return bulkUpdateActive(targetActive);
+    },
+
+    onMutate: async (items) => {
+      await qc.cancelQueries({ queryKey: ["items"] });
+      const previousItems = qc.getQueryData<Item[]>(["items"]);
+
+      const activeCount = items.filter((item) => item.active).length;
+      const targetActive = activeCount <= items.length / 2;
+
+      qc.setQueryData<Item[]>(["items"], (old) => {
+        if (!old) return [];
+
+        return old.map((item) => ({
+          ...item,
+          active: targetActive,
+          updatedAt: new Date().toISOString(),
+        }));
+      });
+
+      return { previousItems, targetActive };
+    },
+
+    onError: (err, items, context) => {
+      if (context?.previousItems) {
+        qc.setQueryData<Item[]>(["items"], context.previousItems);
+      }
+
+      toast.error("Erro ao atualizar itens. Tente novamente.");
+    },
+
+    onSuccess: (_, items, context) => {
+      const targetActive = context?.targetActive ?? true;
+      const itemCount = items.length;
+
+      qc.invalidateQueries({ queryKey: ["items"] });
+
+      if (targetActive) {
+        toast.success(
+          `${itemCount} item${itemCount > 1 ? "s" : ""} ativado${itemCount > 1 ? "s" : ""}!`,
+        );
+      } else {
+        toast.success(
+          `${itemCount} item${itemCount > 1 ? "s" : ""} desativado${itemCount > 1 ? "s" : ""}!`,
+        );
+      }
     },
   });
 }
