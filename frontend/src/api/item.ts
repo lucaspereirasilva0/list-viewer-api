@@ -74,3 +74,24 @@ export async function updateItem(item: Item): Promise<Item> {
   }
   return res.json();
 }
+
+export async function bulkUpdateActive(
+  active: boolean,
+): Promise<{ matchedCount: number; modifiedCount: number }> {
+  const res = await apiRequest(`${BASE_URL}/items/active`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ active }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res
+      .json()
+      .catch(() => ({ message: "Erro desconhecido ao atualizar itens" }));
+    throw new Error(errorData.message || "Erro ao atualizar itens");
+  }
+
+  return res.json();
+}

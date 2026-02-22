@@ -24,7 +24,7 @@ pnpm-debug.log*
 # VSCode settings (opc.)
 .vscode/
 .cursor/rules
-.claude/
+.claude
 AGENTS.md
 
 # ---- Go (caso backend esteja no mesmo repo) ----
